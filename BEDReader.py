@@ -1,4 +1,6 @@
 # packages:  file -> settings -> Project <name> -> Project Interpreter-> +
+# #!!!! https://github.com/numpy/numpy/issues/16494
+
 # imports
 import argparse  # parsing arguments from terminal
 import pandas as pd  # for data structuring
@@ -19,7 +21,7 @@ args = parser.parse_args()
 bed_one = pybedtools.BedTool(args.bed1)
 bed_two = pybedtools.BedTool(args.bed2)
 # intersect both files
-interbothBED = bed_one.intersect(bed_two, s=True, r=True)  # s for overlap on same stand, r for A and B eahc overlap 90%
+interbothBED = bed_one.intersect(bed_two, s=True, r=True)  # s for overlap on same stand, r for A and B each overlap 90%
 
 # print result to console
 # print(interbothBED)
@@ -35,11 +37,29 @@ print("saved as: ", outfile.fn)
 #   use jacquard or make own
 # for own: intersection(A,B) / union(A,B) [union = A + B - intersection]
 
+# calculate sequence length
+def len_seq(bed_file):
+    seq_len = 0
+    # calculate length as sum of all chromEnd - chromStart
+    for line in bed_file:
+        seq_len += int(line[2]) - int(line[1])
+    return seq_len
+
+    # bed_file into pandas data_frame
+    # data = pd.read_csv(bed_file, sep='\t', comment='t', header=None)
+    # calculate length as sum of all chromEnd - chromStart
+    # df = pd.DataFrame(data)
+    # df[6] = df[2] - df[1]
+    # seq_len = ((df[2] - df[1]).sum(axis=0))
+    # return seq_len
+    # return (df[2] - df[1]).sum(axis=0)
+
+
 # own overlap quotient:
 # TODO make own function, even later maybe in other file
 # TODO improve by using log() for each variable
 def overlap_quotient(bed_a, bed_b, intersection_ab):
-    union_ab = len(bed_a) + len(bed_b) - len(intersection_ab)
+    union_ab = len_seq(bed_a) + len_seq(bed_b) - len_seq(intersection_ab)
     print("normal overlap", len(intersection_ab) / union_ab)
     return np.math.log(len(intersection_ab)) / np.math.log(union_ab)
 
@@ -47,7 +67,7 @@ def overlap_quotient(bed_a, bed_b, intersection_ab):
 # degree of overlap for each file:
 def overlap_file(bed, intersection_ab):  # log(A) natural, log(A,x) log to basis x
     print("same with log:                ", np.math.log(len(intersection_ab)) / np.math.log(len(bed)))
-    return len(intersection_ab) / len(bed)
+    return len_seq(intersection_ab) / len_seq(bed)
 
 
 print("overlap quotient for both:    ", overlap_quotient(bed_one, bed_two, interbothBED))
@@ -61,4 +81,3 @@ print("overlap quotient for bed_two :", overlap_file(bed_two, interbothBED))
 
 # own intersect idea: foreach start and stop in A within start and/or stop from B line to new file + count
 # use .each from pybedtools
-
