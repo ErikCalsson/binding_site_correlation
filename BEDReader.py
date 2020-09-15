@@ -136,8 +136,22 @@ second_file_log = overlap_file_log(bed_two, interbothBED)
 # define a x to compare with
 
 
-# Test
-
+# TODO remove simple output test later
+# Test for output validation HERE overlap in log >= 0.9
+is_validate = 'Following files are statistical significant: '
+not_validate = 'Following files are statistical not significant: '
+if both_files_log >= 0.9:
+    is_validate += 'quotient, '
+else:
+    not_validate += 'quotient, '
+if first_file_log >= 0.9:
+    is_validate += 'first file, '
+else:
+    not_validate += 'first file, '
+if second_file_log >= 0.9:
+    is_validate += 'second file, '
+else:
+    not_validate += 'second file, '
 
 # --------------------------------------------
 # visualisation of output data
@@ -168,7 +182,8 @@ app.layout = html.Div(children=[
 
     html.Br(),
 
-    html.H3(children="Test", style={'text-align': 'left'})
+    html.H3(children=is_validate, style={'text-align': 'left'}),
+    html.H3(children=not_validate, style={'text-align': 'left'})
 
 ])
 
