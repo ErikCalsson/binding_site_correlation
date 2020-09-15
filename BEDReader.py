@@ -6,7 +6,20 @@ import argparse  # parsing arguments from terminal
 import pandas as pd  # for data structuring
 import numpy as np
 import pybedtools
+import dash  # visualisation of data via dash
+import dash_core_components as dcc
+import dash_html_components as html
+import plotly.express as px
+from dash.dependencies import Input, Output
 
+# --------------------------------------------
+
+# start dash
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+# --------------------------------------------
 # adding arguments to parser
 parser = argparse.ArgumentParser()
 parser.add_argument("--bed1", help="first input file as name or path", required=True)
@@ -16,20 +29,23 @@ parser.add_argument("--outfile", help="output file name or path", nargs='?')
 # for accessing parsed arguments
 args = parser.parse_args()
 
+# --------------------------------------------
 # opening BED file or file from path
 # ['chrom', 'chromStart', 'chromEnd', 'name', 'score', 'strand'] for access: cromEnd = end, chromStart = start !!!!!!
+# TODO check for BED-6 file format
 bed_one = pybedtools.BedTool(args.bed1)
 bed_two = pybedtools.BedTool(args.bed2)
+
+if args.bed1 == '*.bed':
+    print("snldanb")
+
+
 # intersect both files
 interbothBED = bed_one.intersect(bed_two, s=True, r=True)  # s for overlap on same stand, r for A and B each overlap 90%
-
-# print result to console
-# print(interbothBED)
-
 # put results in output file
 # TODO here file names
-outfile = interbothBED.saveas('intersection-output.bed', trackline='track name="intersection of both files')
-print("saved as: ", outfile.fn)
+# outfile = interbothBED.saveas('intersection-output.bed', trackline='track name="intersection of both files')
+# print("saved as: ", outfile.fn)
 
 
 # approach: number ob overlapped found relative to file
@@ -37,6 +53,8 @@ print("saved as: ", outfile.fn)
 #   use jacquard or make own
 # for own: intersection(A,B) / union(A,B) [union = A + B - intersection]
 
+
+# --------------------------------------------
 # calculate sequence length
 def len_seq(bed_file):
     seq_len = 0
@@ -55,29 +73,105 @@ def len_seq(bed_file):
     # return (df[2] - df[1]).sum(axis=0)
 
 
-# own overlap quotient:
-# TODO make own function, even later maybe in other file
-# TODO improve by using log() for each variable
-def overlap_quotient(bed_a, bed_b, intersection_ab):
+# calculate overlap quotient with log:
+def overlap_quotient_log(bed_a, bed_b, intersection_ab):
     union_ab = len_seq(bed_a) + len_seq(bed_b) - len_seq(intersection_ab)
-    print("normal overlap", len(intersection_ab) / union_ab)
+    # print("normal overlap", len(intersection_ab) / union_ab)
     return np.math.log(len(intersection_ab)) / np.math.log(union_ab)
 
 
-# degree of overlap for each file:
-def overlap_file(bed, intersection_ab):  # log(A) natural, log(A,x) log to basis x
-    print("same with log:                ", np.math.log(len(intersection_ab)) / np.math.log(len(bed)))
+# calculate overlap quotient lazy:
+def overlap_quotient_regular(bed_a, bed_b, intersection_ab):
+    union_ab = len_seq(bed_a) + len_seq(bed_b) - len_seq(intersection_ab)
+    # print("normal overlap", len(intersection_ab) / union_ab)
+    return len(intersection_ab) / union_ab
+
+
+# degree of overlap for each file with log:
+def overlap_file_log(bed, intersection_ab):
+    return np.math.log(len(intersection_ab)) / np.math.log(len(bed))
+
+
+# degree of overlap for each file lazy:
+def overlap_file_regular(bed, intersection_ab):
     return len_seq(intersection_ab) / len_seq(bed)
 
 
-print("overlap quotient for both:    ", overlap_quotient(bed_one, bed_two, interbothBED))
-print("overlap quotient for bed_one :", overlap_file(bed_one, interbothBED))
-print("overlap quotient for bed_two :", overlap_file(bed_two, interbothBED))
+# print("overlap quotient for both:    ", overlap_quotient(bed_one, bed_two, interbothBED))
+# print("overlap quotient for bed_one :", overlap_file(bed_one, interbothBED))
+# print("overlap quotient for bed_two :", overlap_file(bed_two, interbothBED))
 
 # example output(normal and log):
-# both:  0.8717 and 0.2555
+# both:  0.2555 and 0.8717
 # first: 0.4232 and 0.9151
 # second 0.3921 and 0.9083
 
-# own intersect idea: foreach start and stop in A within start and/or stop from B line to new file + count
-# use .each from pybedtools
+# TODO remove absolute values later ?
+both_files_lazy = overlap_quotient_regular(bed_one, bed_two, interbothBED)
+first_file_lazy = overlap_file_regular(bed_one, interbothBED)
+second_file_lazy = overlap_file_regular(bed_two, interbothBED)
+
+# assign output values, relatives with log2
+both_files_log = overlap_quotient_log(bed_one, bed_two, interbothBED)
+first_file_log = overlap_file_log(bed_one, interbothBED)
+second_file_log = overlap_file_log(bed_two, interbothBED)
+# TODO: add values of total sequence length, percent of coverage. BUT not as part of graph figure
+
+
+# --------------------------------------------
+# TODO validate output of Data: Overlap in A, B and between both
+
+# n= seq_len (for both, and each alone), a = alpha = 0.05, s² = 1/(n-1) * (x_i - x),
+# x = median =  x_i/n = {both_files_lazy, first_file_lazy, second_file_lazy},
+# u = mu =  x_i/n = {both_files_lazy, first_file_lazy, second_file_lazy}
+
+# single two sided t test
+# |x - u| / s > t(n-1,1 - a/2)
+
+# H_0 = x = u
+
+
+# One Sample T Test Example
+# t= (x-u)/ (s/ sqrt(n))
+# define a x to compare with
+
+
+# Test
+
+
+# --------------------------------------------
+# visualisation of output data
+
+# dataframe for output
+df = pd.DataFrame({
+    "Overlap": ["Quotient", "First File", "Second File", "Quotient", "First File", "Second File"],
+    "Coverage": [both_files_lazy, first_file_lazy, second_file_lazy,
+                 both_files_log, first_file_log, second_file_log],
+    "Size": ["Absolute", "Absolute", "Absolute",
+             "Log 2", "Log 2", "Log 2"]
+})
+
+# figure
+fig = px.bar(df, x="Overlap", y="Coverage", color="Size",  barmode="group")
+
+# app layout
+app.layout = html.Div(children=[
+
+    # title for the webpage
+    html.H1(children="Overlap between both BED-files", style={'text-align': 'center'}),
+
+    html.Div(id='output_container', children=[]),
+
+    html.Br(),
+
+    dcc.Graph(id='overlap_files', figure=fig),
+
+    html.Br(),
+
+    html.H3(children="Test", style={'text-align': 'left'})
+
+])
+
+# run app
+app.run_server(debug=True)  # debug=true   means update browser by code change
+# see in browser http://127.0.0.1:8050/ ONLY development server
