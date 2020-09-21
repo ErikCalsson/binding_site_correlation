@@ -24,7 +24,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 parser = argparse.ArgumentParser()
 parser.add_argument("--bed1", help="first input file as name or path", required=True)
 parser.add_argument("--bed2", help="second input file as name or path", required=True)
-parser.add_argument("--outfile", help="output file name or path", nargs='?')
+parser.add_argument("--outfile", help="output file name or path", nargs='?')  # inactive
 
 # for accessing parsed arguments
 args = parser.parse_args()
@@ -39,9 +39,10 @@ bed_two = pybedtools.BedTool(args.bed2)
 if args.bed1 == '*.bed':
     print("snldanb")
 
-
 # intersect both files
 interbothBED = bed_one.intersect(bed_two, s=True, r=True)  # s for overlap on same stand, r for A and B each overlap 90%
+
+
 # put results in output file
 # TODO here file names
 # outfile = interbothBED.saveas('intersection-output.bed', trackline='track name="intersection of both files')
@@ -123,23 +124,28 @@ second_file_log = overlap_file_log(bed_two, interbothBED)
 
 # Chi-Quadrat, Willcocs, Fisher
 
+# Chie Quadrat 4 Felder Test x: a=abgedeckt und b=nicht abgedeckt von 1 vs y: c=abgedeckt und d=nicht abgedeckt von 2
+# X² = (n(a*d - c*b)²)/((a+c)(b+d)(a+b)(c+d)) muss kleiner als 3,841 um angenommen zu werden
+len_one = len_seq(bed_one)
+len_two = len_seq(bed_two)
+# TODO use log version instead of lazy ?
+# chi_result = 0
+# a = len_one * first_file_lazy  # = overlap_file_regular(bed_one, interbothBED)
+a = len_one * first_file_log  # = overlap_file_log(bed_one, interbothBED)
+b = len_one - a
+# c = len_two * second_file_lazy  # overlap_file_regular(bed_two, interbothBED)
+c = len_two * second_file_log  # overlap_file_log(bed_two, interbothBED)
+d = len_two - c
+chi_result = ((len_one + len_two)*(a * d - c * b)*(a * d - c * b)) / ((a + c)*(b + d)*(a + b)*(c + d))
 
-# TODO remove simple output test later
-# Test for output validation HERE overlap in log >= 0.9
-is_validate = 'Following files are statistical significant: '
-not_validate = 'Following files are statistical not significant: '
-if both_files_log >= 0.9:
-    is_validate += 'quotient, '
+validated = 'Values'
+validated += str(chi_result)  # value for display only, remove later ?
+
+if chi_result >= 3.841:
+    validated += ' are '
 else:
-    not_validate += 'quotient, '
-if first_file_log >= 0.9:
-    is_validate += 'first file, '
-else:
-    not_validate += 'first file, '
-if second_file_log >= 0.9:
-    is_validate += 'second file, '
-else:
-    not_validate += 'second file, '
+    validated += ' may not '
+validated += 'statistical significant different'
 
 # --------------------------------------------
 # visualisation of output data
@@ -154,7 +160,7 @@ df = pd.DataFrame({
 })
 
 # figure
-fig = px.bar(df, x="Overlap", y="Coverage", color="Size",  barmode="group")
+fig = px.bar(df, x="Overlap", y="Coverage", color="Size", barmode="group")
 
 # app layout
 app.layout = html.Div(children=[
@@ -170,8 +176,7 @@ app.layout = html.Div(children=[
 
     html.Br(),
 
-    html.H3(children=is_validate, style={'text-align': 'left'}),
-    html.H3(children=not_validate, style={'text-align': 'left'})
+    html.H3(children=validated, style={'text-align': 'left'})
 
 ])
 
