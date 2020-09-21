@@ -143,7 +143,7 @@ chi_result = ((len_one + len_two)*(a * d - c * b)*(a * d - c * b)) / ((a + c)*(b
 validated = 'Values'
 validated += str(chi_result)  # value for display only, remove later ?
 
-if chi_result >= 3.841:
+if chi_result >= 3.841:  # chi²_(0.95,1) --> 3.841
     validated += ' are '
 else:
     validated += ' may not '
