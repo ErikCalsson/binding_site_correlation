@@ -25,6 +25,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--bed1", help="first input file as name or path", required=True)
 parser.add_argument("--bed2", help="second input file as name or path", required=True)
 parser.add_argument("--outfile", help="output file name or path", nargs='?')  # inactive
+parser.add_argument("display_type", help=" may be dash for graphics or console for plane text", nargs='?')  # inactive
+# last one later for deciding if results be shown in dash or terminal
 
 # for accessing parsed arguments
 args = parser.parse_args()
