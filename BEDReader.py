@@ -77,14 +77,14 @@ def len_seq(bed_file):
 def overlap_quotient_log(bed_a, bed_b, intersection_ab):
     union_ab = len_seq(bed_a) + len_seq(bed_b) - len_seq(intersection_ab)
     # print("normal overlap", len(intersection_ab) / union_ab)
-    return np.math.log(len(intersection_ab)) / np.math.log(union_ab)
+    return np.math.log(len_seq(intersection_ab)) / np.math.log(union_ab)
 
 
 # calculate overlap quotient lazy:
 def overlap_quotient_regular(bed_a, bed_b, intersection_ab):
     union_ab = len_seq(bed_a) + len_seq(bed_b) - len_seq(intersection_ab)
     # print("normal overlap", len(intersection_ab) / union_ab)
-    return len(intersection_ab) / union_ab
+    return len_seq(intersection_ab) / union_ab
 
 
 # degree of overlap for each file with log:
@@ -121,19 +121,7 @@ second_file_log = overlap_file_log(bed_two, interbothBED)
 # --------------------------------------------
 # TODO validate output of Data: Overlap in A, B and between both
 
-# n= seq_len (for both, and each alone), a = alpha = 0.05, s² = 1/(n-1) * (x_i - x),
-# x = median =  x_i/n = {both_files_lazy, first_file_lazy, second_file_lazy},
-# u = mu =  x_i/n = {both_files_lazy, first_file_lazy, second_file_lazy}
-
-# single two sided t test
-# |x - u| / s > t(n-1,1 - a/2)
-
-# H_0 = x = u
-
-
-# One Sample T Test Example
-# t= (x-u)/ (s/ sqrt(n))
-# define a x to compare with
+# Chi-Quadrat, Willcocs, Fisher
 
 
 # TODO remove simple output test later
