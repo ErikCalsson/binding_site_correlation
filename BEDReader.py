@@ -125,23 +125,25 @@ second_file_log = overlap_file_log(bed_two, interbothBED)
 # --------------------------------------------
 
 # chi_square test x: a=covered and b=not covered from 1 vs y: c=covered und d=not covered from 2
-# X² = (n(a*d - c*b)²)/((a+c)(b+d)(a+b)(c+d)) has to be smaller then 3,841 to be accepted
 len_one = len_seq(bed_one)
 len_two = len_seq(bed_two)
 a = len_one * first_file_log  # = overlap_file_log(bed_one, interbothBED)
 b = len_one - a  # a + b = len_one
 c = len_two * second_file_log  # overlap_file_log(bed_two, interbothBED)
 d = len_two - c
-chi_result = ((len_one + len_two)*(a * d - c * b)**2) / ((a + c)*(b + d)*(a + b)*(c + d))
 
-validated_own = 'Values'
-validated_own += str(chi_result)  # TODO value for display only, remove later
 
-if chi_result >= 3.841:  # chi²_(0.95,1) --> 3.841
-    validated_own += ' are '
-else:
-    validated_own += ' may not '
-validated_own += 'statistical significant different'
+# X² = (n(a*d - c*b)²)/((a+c)(b+d)(a+b)(c+d)) has to be smaller then 3,841 to be accepted
+# chi_result = ((len_one + len_two)*(a * d - c * b)**2) / ((a + c)*(b + d)*(a + b)*(c + d))
+
+# validated_own = 'Values'
+# validated_own += str(chi_result)  # TODO value for display only, remove later
+
+# if chi_result >= 3.841:  # chi²_(0.95,1) --> 3.841
+#    validated_own += ' are '
+# else:
+#    validated_own += ' may not '
+# validated_own += 'statistical significant different'
 
 # scipy version:
 # https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.chi2_contingency.html
@@ -187,7 +189,7 @@ app.layout = html.Div(children=[
 
     html.Br(),
 
-    html.H3(children=validated_own, style={'text-align': 'left'}),
+    # html.H3(children=validated_own, style={'text-align': 'left'}),
     html.H3(children=validated, style={'text-align': 'left'})
 
 ])
