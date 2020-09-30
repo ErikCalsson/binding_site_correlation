@@ -27,7 +27,7 @@ parser.add_argument("--bed1", help="first input file as name or path", required=
 parser.add_argument("--bed2", help="second input file as name or path", required=True)
 parser.add_argument("--outfile", help="output file name or path", nargs='?')  # inactive
 parser.add_argument("display_type", help=" may be dash for graphics or console for plane text", nargs='?')  # inactive
-# last one later for deciding if results be shown in dash or terminal
+# TODO chi² arguments for p value and freedom degrees
 
 # for accessing parsed arguments
 args = parser.parse_args()
@@ -39,16 +39,16 @@ args = parser.parse_args()
 bed_one = pybedtools.BedTool(args.bed1)
 bed_two = pybedtools.BedTool(args.bed2)
 
-if args.bed1 == '*.bed':
-    print("snldanb")
+# if args.bed1 == '*.bed':
+#    print("is a BED file")
 
 # intersect both files
-interbothBED = bed_one.intersect(bed_two, s=True, r=True)  # s for overlap on same stand, r for A and B each overlap 90%
+inter_both_BED = bed_one.intersect(bed_two, s=True, r=True)  # s: overlap on same stand, r: A and B each overlap 90%
 
 
 # put results in output file
 # TODO here file names
-# outfile = interbothBED.saveas('intersection-output.bed', trackline='track name="intersection of both files')
+# outfile = inter_both_BED.saveas('intersection-output.bed', trackline='track name="intersection of both files')
 # print("saved as: ", outfile.fn)
 
 
@@ -101,9 +101,9 @@ def overlap_file_regular(bed, intersection_ab):
     return len_seq(intersection_ab) / len_seq(bed)
 
 
-# print("overlap quotient for both:    ", overlap_quotient(bed_one, bed_two, interbothBED))
-# print("overlap quotient for bed_one :", overlap_file(bed_one, interbothBED))
-# print("overlap quotient for bed_two :", overlap_file(bed_two, interbothBED))
+# print("overlap quotient for both:    ", overlap_quotient(bed_one, bed_two, inter_both_BED))
+# print("overlap quotient for bed_one :", overlap_file(bed_one, inter_both_BED))
+# print("overlap quotient for bed_two :", overlap_file(bed_two, inter_both_BED))
 
 # example output(normal and log):
 # both:  0.2555 and 0.8717
@@ -111,14 +111,14 @@ def overlap_file_regular(bed, intersection_ab):
 # second 0.3921 and 0.9083
 
 # TODO remove absolute values later ?
-both_files_lazy = overlap_quotient_regular(bed_one, bed_two, interbothBED)
-first_file_lazy = overlap_file_regular(bed_one, interbothBED)
-second_file_lazy = overlap_file_regular(bed_two, interbothBED)
+both_files_lazy = overlap_quotient_regular(bed_one, bed_two, inter_both_BED)
+first_file_lazy = overlap_file_regular(bed_one, inter_both_BED)
+second_file_lazy = overlap_file_regular(bed_two, inter_both_BED)
 
 # assign output values, relatives with log2
-both_files_log = overlap_quotient_log(bed_one, bed_two, interbothBED)
-first_file_log = overlap_file_log(bed_one, interbothBED)
-second_file_log = overlap_file_log(bed_two, interbothBED)
+both_files_log = overlap_quotient_log(bed_one, bed_two, inter_both_BED)
+first_file_log = overlap_file_log(bed_one, inter_both_BED)
+second_file_log = overlap_file_log(bed_two, inter_both_BED)
 # TODO: add values of total sequence length, percent of coverage. BUT not as part of graph figure
 
 
@@ -127,9 +127,9 @@ second_file_log = overlap_file_log(bed_two, interbothBED)
 # chi_square test x: a=covered and b=not covered from 1 vs y: c=covered und d=not covered from 2
 len_one = len_seq(bed_one)
 len_two = len_seq(bed_two)
-a = len_one * first_file_log  # = overlap_file_log(bed_one, interbothBED)
+a = len_one * first_file_log  # = overlap_file_log(bed_one, inter_both_BED)
 b = len_one - a  # a + b = len_one
-c = len_two * second_file_log  # overlap_file_log(bed_two, interbothBED)
+c = len_two * second_file_log  # overlap_file_log(bed_two, inter_both_BED)
 d = len_two - c
 
 
