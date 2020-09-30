@@ -13,4 +13,7 @@ df = pd.DataFrame({
              "Log 2", "Log 2", "Log 2"]
 })
 
-print(df)
+
+# start terminal output
+def use_terminal():
+    print(df)
