@@ -77,4 +77,4 @@ d = len_two - c
 
 # TODO adapt for usage of specific parameters for p-value
 # reference: https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.chi2_contingency.html
-sci_out = stats.chi2_contingency([[a, b], [c, d]])
+sci_out = stats.chi2_contingency([[a, b], [c, d]])  # output x², p-value and degree_of_freedom
