@@ -11,13 +11,6 @@ inter_both_BED = file.bed_one.intersect(file.bed_two, s=True, r=True)
 # s: overlap on same stand, r: both overlap 90% each
 
 
-# put results in output file
-# TODO here file names
-# out_file_intersection = inter_both_BED.saveas('intersection-output.bed',
-#                                               trackline='track name="intersection of both files')
-# print("saved as: ", out_file_intersection.fn)
-
-
 # calculate sequence length
 def len_seq(bed_file):
     seq_len = 0
