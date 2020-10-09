@@ -1,5 +1,5 @@
 # imports extern
-import pandas as pd  # for data structuring
+import pandas as pd
 
 # imports intern
 import src.data_calculation as data

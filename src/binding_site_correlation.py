@@ -9,7 +9,6 @@ import src.output_terminal as pix
 
 
 def launch_me():
-    #if pars.args.display == 'true':  # SET ti == later
     if pars.args.display:
         # launch dash version
         gui.run_gui()

@@ -1,6 +1,6 @@
 # imports extern
-import pandas as pd  # for data structuring
-import dash  # visualisation of data via dash
+import pandas as pd
+import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
@@ -61,10 +61,9 @@ app.layout = html.Div(children=[
 
 ])
 
-# run app
-# app.run_server(debug=True)  # debug=true   means update browser by code change
-# see in browser http://127.0.0.1:8050/ ONLY development server
-
 
 def run_gui():
     app.run_server(debug=True)
+# run app
+# app.run_server(debug=True)  # debug=true   means update browser by code change
+# see in browser http://127.0.0.1:8050/ ONLY development server
