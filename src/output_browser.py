@@ -55,5 +55,9 @@ app.layout = html.Div(children=[
 ])
 
 # run app
-app.run_server(debug=True)  # debug=true   means update browser by code change
+# app.run_server(debug=True)  # debug=true   means update browser by code change
 # see in browser http://127.0.0.1:8050/ ONLY development server
+
+
+def run_gui():
+    app.run_server(debug=True)
