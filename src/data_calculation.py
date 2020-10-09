@@ -4,6 +4,7 @@ import scipy.stats as stats
 
 # imports intern
 import src.file_reader as file
+import src.argument_parser as pars
 
 
 # intersect both files
@@ -67,12 +68,17 @@ a = len_one * first_file_log  # = overlap_file_log(bed_one, inter_both_BED)
 b = len_one - a  # a + b = len_one
 c = len_two * second_file_log  # overlap_file_log(bed_two, inter_both_BED)
 d = len_two - c
+alpha = 0.05
+
+if pars.args.alpha is not None:
+    alpha = float(pars.args.alpha)
+
 
 # TODO adapt for usage of specific parameters for p-value
 # reference: https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.chi2_contingency.html
 sci_out = stats.chi2_contingency([[a, b], [c, d]])  # output x², p-value and degree_of_freedom
 val_str = ''
-if sci_out[1] < 0.05:  # only for chi²_(0.95)
+if sci_out[1] < alpha:
     val_str += ' are '
 else:
     val_str += ' may not '
