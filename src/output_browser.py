@@ -7,6 +7,7 @@ import plotly.express as px
 
 # imports intern
 import src.data_calculation as data
+import src.argument_parser as pars
 
 
 # start dash
@@ -31,6 +32,12 @@ df = pd.DataFrame({
     "Size": ["Absolute", "Absolute", "Absolute",
              "Log 2", "Log 2", "Log 2"]
 })
+
+
+# writing results to output file
+if pars.args.outfile is not None:
+    filename = pars.args.outfile + ".csv"
+    df.to_csv(filename, index=False)
 
 # figure
 fig = px.bar(df, x="Overlap", y="Coverage", color="Size", barmode="group")
