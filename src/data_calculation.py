@@ -70,15 +70,31 @@ c = len_two * second_file_log  # overlap_file_log(bed_two, inter_both_BED)
 d = len_two - c
 alpha = 0.05
 
+
+# level of significance
 if pars.args.alpha is not None:
     alpha = float(pars.args.alpha)
 
 
-# TODO adapt for usage of specific parameters for p-value
 # reference: https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.chi2_contingency.html
-sci_out = stats.chi2_contingency([[a, b], [c, d]])  # output x², p-value and degree_of_freedom
+sci_out = stats.chi2_contingency([[a, b], [c, d]])  # output: x², p-value and degree_of_freedom and expected values
+
+
+# degree of freedom
+if pars.args.freedom is not None:
+    freedom = int(pars.args.freedom)
+else:
+    freedom = sci_out[2]
+
+# perform chi² test
+# https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.chisquare.html#scipy.stats.chisquare
+chi_results = stats.chisquare([[a, b], [c, d]], axis=None, f_exp=sci_out[3], ddof=freedom)
+# output: chi-squared test statistic and p-value
+
 val_str = ''
-if sci_out[1] < alpha:
+if chi_results[1] < alpha:
     val_str += ' are '
 else:
     val_str += ' may not '
+
+
