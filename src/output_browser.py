@@ -19,7 +19,8 @@ validated = 'Values'
 validated += data.val_str  # result if p-value is bigger or smaller than chi²-value
 validated += 'statistical significant different'
 validated += '::'
-validated += str(data.sci_out)  # TODO value for display only, remove later
+#validated += str(data.sci_out)  # TODO value for display only, remove later
+validated += str(data.chi_results)  # TODO value for display only, remove later
 
 # --------------------------------------------
 # visualisation of output data
@@ -38,6 +39,7 @@ df = pd.DataFrame({
 if pars.args.outfile is not None:
     filename = pars.args.outfile + ".csv"
     df.to_csv(filename, index=False)
+#https://medium.com/@ageitgey/python-3-quick-tip-the-easy-way-to-deal-with-file-paths-on-windows-mac-and-linux-11a072b58d5f
 
 # figure
 fig = px.bar(df, x="Overlap", y="Coverage", color="Size", barmode="group")
