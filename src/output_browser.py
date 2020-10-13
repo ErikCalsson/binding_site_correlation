@@ -50,6 +50,8 @@ if pars.args.outfile is not None:
 
 #https://plotly.com/python/creating-and-updating-figures/
 #https://dash.plotly.com/dash-core-components/graph
+
+#https://dash.plotly.com/basic-callbacks
 # figure
 fig = px.bar(df, x="Overlap", y="Coverage", color="Size", barmode="group")
 
