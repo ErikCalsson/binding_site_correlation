@@ -17,10 +17,18 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 validated = 'Values'
 validated += data.val_str  # result if p-value is bigger or smaller than chi²-value
-validated += 'statistical significant different'
-validated += '::'
+validated += 'statistical significant different with'
+validated += ':'
 #validated += str(data.sci_out)  # TODO value for display only, remove later
-validated += str(data.chi_results)  # TODO value for display only, remove later
+#validated += str(data.chi_results)  # TODO value for display only, remove later
+
+# Values for chi² results
+df_chi = pd.DataFrame({
+        "Typ": ["Test Statistic", "P-Value", "Degree Of Freedom"],
+        "Value": [data.chi_results[0], data.chi_results[1], data.freedom]
+})
+chi_values = str(data.chi_results[0]) + ', '+ str(data.chi_results[1]) + ', ' + str(int(data.freedom))
+
 
 # --------------------------------------------
 # visualisation of output data
@@ -59,7 +67,12 @@ app.layout = html.Div(children=[
     html.Br(),
 
     # html.H3(children=validated_own, style={'text-align': 'left'}),
-    html.H3(children=validated, style={'text-align': 'left'})
+    html.H2(children=validated, style={'text-align': 'left'}),
+    html.H4(children='Test Statistic: ' + str(data.chi_results[0]), style={'text-align': 'left'}),
+    html.H4(children='P-Value: ' + str(data.chi_results[1]), style={'text-align': 'left'}),
+    html.H4(children='Alpha: ' + str(data.alpha), style={'text-align': 'left'}),
+    html.H4(children='Degree Of Freedom: ' + str(int(data.freedom)), style={'text-align': 'left'}),
+    #html.H4(children=chi_values, style={'text-align': 'left'})
 
 ])
 
