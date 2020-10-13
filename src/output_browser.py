@@ -19,15 +19,13 @@ validated = 'Values'
 validated += data.val_str  # result if p-value is bigger or smaller than chi²-value
 validated += 'statistical significant different with'
 validated += ':'
-#validated += str(data.sci_out)  # TODO value for display only, remove later
-#validated += str(data.chi_results)  # TODO value for display only, remove later
 
-# Values for chi² results
+
+# Values for chi² results TODO remove or display
 df_chi = pd.DataFrame({
         "Typ": ["Test Statistic", "P-Value", "Degree Of Freedom"],
         "Value": [data.chi_results[0], data.chi_results[1], data.freedom]
 })
-chi_values = str(data.chi_results[0]) + ', '+ str(data.chi_results[1]) + ', ' + str(int(data.freedom))
 
 
 # --------------------------------------------
@@ -49,6 +47,9 @@ if pars.args.outfile is not None:
     df.to_csv(filename, index=False)
 #https://medium.com/@ageitgey/python-3-quick-tip-the-easy-way-to-deal-with-file-paths-on-windows-mac-and-linux-11a072b58d5f
 
+
+#https://plotly.com/python/creating-and-updating-figures/
+#https://dash.plotly.com/dash-core-components/graph
 # figure
 fig = px.bar(df, x="Overlap", y="Coverage", color="Size", barmode="group")
 
@@ -71,8 +72,7 @@ app.layout = html.Div(children=[
     html.H4(children='Test Statistic: ' + str(data.chi_results[0]), style={'text-align': 'left'}),
     html.H4(children='P-Value: ' + str(data.chi_results[1]), style={'text-align': 'left'}),
     html.H4(children='Alpha: ' + str(data.alpha), style={'text-align': 'left'}),
-    html.H4(children='Degree Of Freedom: ' + str(int(data.freedom)), style={'text-align': 'left'}),
-    #html.H4(children=chi_values, style={'text-align': 'left'})
+    html.H4(children='Degree Of Freedom: ' + str(int(data.freedom)), style={'text-align': 'left'})
 
 ])
 
