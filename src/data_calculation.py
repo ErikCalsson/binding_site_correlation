@@ -95,4 +95,4 @@ val_str = ''
 if chi_results[1] < alpha:
     val_str += ' are '
 else:
-    val_str += ' may not '
+    val_str += ' may be not '
