@@ -17,7 +17,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 validated = 'Values'
-validated += data.val_str  # result if p-value is bigger or smaller than chi²-value
+validated += data.chi_text  # result if p-value is bigger or smaller than chi²-value
 validated += 'statistical significant different with'
 validated += ':'
 
