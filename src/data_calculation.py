@@ -86,13 +86,29 @@ if pars.args.freedom is not None:
 else:
     freedom = sci_out[2]
 
+
+# calculate chi-square test
+def calc_chi(free, alp):
+    val_str = ' '
+    chi_value = stats.chisquare([[a, b], [c, d]], axis=None, f_exp=sci_out[3], ddof=free)
+    if chi_value[1] < alp:
+        val_str += 'are '
+    else:
+        val_str += 'may be not '
+    return chi_value, val_str
+
+
+# perform chi-square test for program start
+chi_results, chi_text = calc_chi(freedom, alpha)
+
+
 # perform chi² test
 # https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.chisquare.html#scipy.stats.chisquare
-chi_results = stats.chisquare([[a, b], [c, d]], axis=None, f_exp=sci_out[3], ddof=freedom)
+#chi_results = stats.chisquare([[a, b], [c, d]], axis=None, f_exp=sci_out[3], ddof=freedom)
 # output: chi-squared test statistic and p-value
 
-val_str = ''
-if chi_results[1] < alpha:
-    val_str += ' are '
-else:
-    val_str += ' may be not '
+#val_str = ''
+#if chi_results[1] < alpha:
+#    val_str += ' are '
+#else:
+#    val_str += ' may be not '
