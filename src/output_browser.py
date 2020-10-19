@@ -16,11 +16,6 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-validated = 'Values'
-validated += data.chi_text  # result if p-value is bigger or smaller than chi²-value
-validated += 'statistical significant different with'
-validated += ':'
-
 
 # Values for chi² results TODO remove or display
 df_chi = pd.DataFrame({
@@ -72,18 +67,19 @@ app.layout = html.Div(children=[
         id='freedom_slider',
         min=1,
         max=20,
+        value=data.freedom,
         marks={'1': '1', '5': '5', '10': '10', '15': '15',  '20': '20'}
     ),
     html.H6(children='Alpha-Value: '),
     # slider for alpha value
     # TODO all values from 0.80 to 0.99 as option
-    dcc.Slider(
-            id='alpha_slider',
-            min=0.01,
-            max=0.25,
-            value=data.alpha,
-            marks={'0.01': '0.01', '0.05': '0.05', '0.10': '0.10', '0.15': '0.15',  '0.20': '0.20',  '0.25': '0.25'}
-    ),
+    #dcc.Slider(
+    #        id='alpha_slider',
+    #        min=0.01,
+    #        max=0.25,
+    #        value=data.alpha,
+    #        marks={'0.01': '0.01', '0.05': '0.05', '0.10': '0.10', '0.15': '0.15',  '0.20': '0.20',  '0.25': '0.25'}
+    #),
     # dropdown for alpha value
     # TODO all values from 0.80 to 0.99 as option
     dcc.Dropdown(
@@ -108,11 +104,11 @@ app.layout = html.Div(children=[
     html.Br(),
 
     # html.H3(children=validated_own, style={'text-align': 'left'}),
-    html.H2(children=validated, style={'text-align': 'left'}),
-    html.H4(children='Test Statistic: ' + str(data.chi_results[0]), style={'text-align': 'left'}),
-    html.H4(children='P-Value: ' + str(data.chi_results[1]), style={'text-align': 'left'}),
-    html.H4(children='Alpha: ' + str(data.alpha), style={'text-align': 'left'}),
-    html.H4(children='Degree Of Freedom: ' + str(int(data.freedom)), style={'text-align': 'left'})
+    html.H2(id='val_text', children=data.chi_text, style={'text-align': 'left'}),
+    html.H4(id='stat_text', children='Test Statistic: ' + str(data.chi_results[0]), style={'text-align': 'left'}),
+    html.H4(id='p_val', children='P-Value: ' + str(data.chi_results[1]), style={'text-align': 'left'}),
+    html.H4(id='alp', children='Alpha: ' + str(data.alpha), style={'text-align': 'left'}),
+    html.H4(id='freed', children='Degree Of Freedom: ' + str(int(data.freedom)), style={'text-align': 'left'})
 
 ])
 
@@ -122,7 +118,30 @@ app.layout = html.Div(children=[
     [dash.dependencies.Input('alpha_dropdown', 'value')])
 def update_output(value):
     return 'You have selected "{}"'.format(value)
-# TODO update calculation
+
+
+# update when new freedom or alpha detected
+@app.callback([
+    Output('val_text', 'children'),
+    # Output('stat_text', 'children'),  new_val[0],
+    Output('p_val', 'children'),
+    Output('alp', 'children'),
+    Output('freed', 'children')
+    ],
+    [
+    Input('alpha_dropdown', 'value'),
+    Input('freedom_slider', 'value')
+    ]
+)
+def update_text(alpha_dropdown, freedom_slider):
+
+    new_chi = data.calc_chi(float(freedom_slider), float(alpha_dropdown))
+    new_val = new_chi[0]  # chi² results
+    new_text = new_chi[1]  # validation text
+    p_text = 'P-Value: ' + str(new_val[1])
+    a_text = 'Alpha: ' + str(alpha_dropdown)
+    f_text = 'Degree Of Freedom: ' + str(freedom_slider)
+    return new_text, p_text, a_text, f_text
 
 
 def run_gui():
