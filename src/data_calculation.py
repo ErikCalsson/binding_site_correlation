@@ -89,12 +89,13 @@ else:
 
 # calculate chi-square test
 def calc_chi(free, alp):
-    val_str = ' '
+    val_str = 'Values'
     chi_value = stats.chisquare([[a, b], [c, d]], axis=None, f_exp=sci_out[3], ddof=free)
     if chi_value[1] < alp:
-        val_str += 'are '
+        val_str += ' are '
     else:
-        val_str += 'may be not '
+        val_str += ' may be not '
+    val_str += 'statistical significant different with:'
     return chi_value, val_str
 
 
