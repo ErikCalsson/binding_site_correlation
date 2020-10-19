@@ -17,7 +17,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 
-# Values for chi² results TODO remove or display
+# Values for chi² results
 df_chi = pd.DataFrame({
         "Typ": ["Test Statistic", "P-Value", "Degree Of Freedom"],
         "Value": [data.chi_results[0], data.chi_results[1], data.freedom]
@@ -44,13 +44,6 @@ if pars.args.outfile is not None:
 #https://medium.com/@ageitgey/python-3-quick-tip-the-easy-way-to-deal-with-file-paths-on-windows-mac-and-linux-11a072b58d5f
 
 
-# interactive dashboard
-#https://plotly.com/python/creating-and-updating-figures/
-#https://dash.plotly.com/dash-core-components/graph
-
-#https://dash.plotly.com/basic-callbacks
-
-
 # figure
 fig = px.bar(df, x="Overlap", y="Coverage", color="Size", barmode="group")
 
@@ -72,7 +65,7 @@ app.layout = html.Div(children=[
     ),
     html.H6(children='Alpha-Value: '),
     # slider for alpha value
-    # TODO all values from 0.80 to 0.99 as option
+    # TODO all values from 0.01 to 0.99 as option ?
     #dcc.Slider(
     #        id='alpha_slider',
     #        min=0.01,
@@ -81,7 +74,7 @@ app.layout = html.Div(children=[
     #        marks={'0.01': '0.01', '0.05': '0.05', '0.10': '0.10', '0.15': '0.15',  '0.20': '0.20',  '0.25': '0.25'}
     #),
     # dropdown for alpha value
-    # TODO all values from 0.80 to 0.99 as option
+    # TODO all values from 0.01 to 0.99 as option ?
     dcc.Dropdown(
         id='alpha_dropdown',
         options=[
@@ -94,7 +87,6 @@ app.layout = html.Div(children=[
         ],
         value=data.alpha
     ),
-    html.Div(id='dd-output-container'),  # tmp output for update check
 
     html.Br(),
 
@@ -111,13 +103,6 @@ app.layout = html.Div(children=[
     html.H4(id='freed', children='Degree Of Freedom: ' + str(int(data.freedom)), style={'text-align': 'left'})
 
 ])
-
-
-@app.callback(
-    dash.dependencies.Output('dd-output-container', 'children'),
-    [dash.dependencies.Input('alpha_dropdown', 'value')])
-def update_output(value):
-    return 'You have selected "{}"'.format(value)
 
 
 # update when new freedom or alpha detected
