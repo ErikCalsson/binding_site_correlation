@@ -99,5 +99,7 @@ def calc_chi(free, alp):
     return chi_value, val_str
 
 
+# TODO use Fisher Test for better/advanced comparison of p-values?
+
 # perform chi-square test for program start
 chi_results, chi_text = calc_chi(freedom, alpha)
