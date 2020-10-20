@@ -78,12 +78,12 @@ app.layout = html.Div(children=[
     dcc.Dropdown(
         id='alpha_dropdown',
         options=[
-            {'label': '0.01', 'value': '0.01'},
-            {'label': '0.05', 'value': '0.05'},
-            {'label': '0.10', 'value': '0.10'},
-            {'label': '0.15', 'value': '0.15'},
-            {'label': '0.20', 'value': '0.20'},
-            {'label': '0.25', 'value': '0.25'}
+            {'label': '0.01%', 'value': '0.0001'},
+            {'label': '0.1%', 'value': '0.001'},
+            {'label': '1%', 'value': '0.01'},
+            {'label': '5%', 'value': '0.05'},
+            {'label': '10%', 'value': '0.1'}
+
         ],
         value=data.alpha
     ),
