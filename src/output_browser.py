@@ -29,11 +29,11 @@ df_chi = pd.DataFrame({
 
 # dataframe for output
 df = pd.DataFrame({
-    "Overlap": ["Quotient", "First File", "Second File", "Quotient", "First File", "Second File"],
+    "Degree of Overlap in %": ["Quotient", "First File", "Second File", "Quotient", "First File", "Second File"],
     "Coverage": [data.both_files_lazy, data.first_file_lazy, data.second_file_lazy,
                  data.both_files_log, data.first_file_log, data.second_file_log],
-    "Size": ["Absolute", "Absolute", "Absolute",
-             "Log 2", "Log 2", "Log 2"]
+    "Size": ["Actual Value", "Actual Value", "Actual Value",
+             "Log 2 Value", "Log 2 Value", "Log 2 Value"]
 })
 
 
@@ -45,7 +45,7 @@ if pars.args.outfile is not None:
 
 
 # figure
-fig = px.bar(df, x="Overlap", y="Coverage", color="Size", barmode="group")
+fig = px.bar(df, x="Degree of Overlap in %", y="Coverage", color="Size", barmode="group")
 
 # app layout
 app.layout = html.Div(children=[
@@ -56,6 +56,7 @@ app.layout = html.Div(children=[
     html.Div(id='output_container', children=[]),
 
     # input for alpha and degrees of freedom
+    html.H6(children='Degree of Freedom: '),
     dcc.Slider(
         id='freedom_slider',
         min=1,
@@ -65,16 +66,8 @@ app.layout = html.Div(children=[
     ),
     html.H6(children='Alpha-Value: '),
     # slider for alpha value
-    # TODO all values from 0.01 to 0.99 as option ?
-    #dcc.Slider(
-    #        id='alpha_slider',
-    #        min=0.01,
-    #        max=0.25,
-    #        value=data.alpha,
-    #        marks={'0.01': '0.01', '0.05': '0.05', '0.10': '0.10', '0.15': '0.15',  '0.20': '0.20',  '0.25': '0.25'}
-    #),
     # dropdown for alpha value
-    # TODO all values from 0.01 to 0.99 as option ?
+    # TODO field for custom alpha value
     dcc.Dropdown(
         id='alpha_dropdown',
         options=[
@@ -88,10 +81,35 @@ app.layout = html.Div(children=[
         value=data.alpha
     ),
 
+    html.H6("Change these to see if the result for files being 'statistical significant different' changes"),
+
     html.Br(),
 
     # graph
     dcc.Graph(id='overlap_files', figure=fig),
+    html.H6("Shown is 1. degree overlap between both files in reference to their "
+            "combined length, 2. degree overlap of first file in reference to it's "
+            "length and 3. degree overlap of second file in reference to it's length "),
+
+    dcc.Graph(
+        id='overlap-graph',
+        figure={
+            'data': [
+                {'x': [1, 2, 3], 'y': [data.both_files_lazy, data.first_file_lazy, data.second_file_lazy],
+                 'type': 'bar', 'name': 'Actual Value'},
+                {'x': [1, 2, 3], 'y': [data.both_files_log, data.first_file_log, data.second_file_log],
+                 'type': 'bar', 'name': u'Log 2 Value'},
+            ],
+            'layout': {
+                'title': 'Dash Data Visualization',
+                'xaxis': {'type': 'text', 'title': "Coverage"},
+                'yaxis': {'type': 'linear', 'title': "Degree of Overlap in %"}
+            }
+        }
+    ),
+    html.H6("Shown is 1. degree overlap between both files in reference to their "
+            "combined length, 2. degree overlap of first file in reference to it's "
+            "length and 3. degree overlap of second file in reference to it's length "),
 
     html.Br(),
 
