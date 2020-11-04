@@ -1,6 +1,7 @@
 # imports extern
 import numpy as np
 import scipy.stats as stats
+import pybedtools as pybed
 
 # imports intern
 import src.file_reader as file
@@ -91,15 +92,17 @@ else:
 def calc_chi(free, alp):
     val_str = 'Values'
     chi_value = stats.chisquare([[a, b], [c, d]], axis=None, f_exp=sci_out[3], ddof=free)
-    if chi_value[1] < alp:
-        val_str += ' are '
+    if chi_value[1] > alp:
+        val_str += ' are not '
     else:
-        val_str += ' may be not '
+        val_str += ' may be '
     val_str += 'statistical significant different with:'
     return chi_value, val_str
 
 
 # TODO use Fisher Test for better/advanced comparison of p-values?
+res = stats.fisher_exact([[a, b], [c, d]])
+print('fisher test result: ', res)
 
 # perform chi-square test for program start
 chi_results, chi_text = calc_chi(freedom, alpha)
