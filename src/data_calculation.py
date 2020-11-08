@@ -23,7 +23,7 @@ def len_seq(bed_file):
     return seq_len
 
 
-# save file lengths for reuse, applying merge to combine overlapping features into a single one
+# save file lengths for reuse, applying merge to combine overlapping features on same strand into a single one
 len_one = len_seq(pt.BedTool.merge(file.bed_one, s=True))
 len_two = len_seq(pt.BedTool.merge(file.bed_two, s=True))
 len_inter = len_seq(pt.BedTool.merge(inter_both_BED, s=True))
@@ -82,10 +82,6 @@ print("b", b)
 #print("log2", second_file_log)
 print("c", c)
 print("d", d)
-
-# TODO use Fisher Test for better/advanced comparison of p-values?
-res = stats.fisher_exact([[a, b], [c, d]])
-print('fisher test result: ', res)
 
 
 # break if both files are the same, when a = c = 0
