@@ -1,6 +1,7 @@
 # imports extern
 import numpy as np
 import scipy.stats as stats
+import pybedtools as pt
 
 
 # imports intern
@@ -12,8 +13,6 @@ import src.argument_parser as pars
 inter_both_BED = file.bed_one.intersect(file.bed_two, s=True, r=True, wb=True)
 # s: overlap on same stand, r: both overlap 90% each
 
-print(inter_both_BED)
-
 
 # calculate sequence length
 def len_seq(bed_file):
@@ -24,10 +23,10 @@ def len_seq(bed_file):
     return seq_len
 
 
-# save file lengths for reuse
-len_one = len_seq(set(file.bed_one))
-len_two = len_seq(set(file.bed_two))
-len_inter = len_seq(set(inter_both_BED))
+# save file lengths for reuse, applying merge to combine overlapping features into a single one
+len_one = len_seq(pt.BedTool.merge(file.bed_one, s=True))
+len_two = len_seq(pt.BedTool.merge(file.bed_two, s=True))
+len_inter = len_seq(pt.BedTool.merge(inter_both_BED, s=True))
 
 
 # calculate overlap quotient with log:
