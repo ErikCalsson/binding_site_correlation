@@ -12,6 +12,8 @@ import src.argument_parser as pars
 inter_both_BED = file.bed_one.intersect(file.bed_two, s=True, r=True, wb=True)
 # s: overlap on same stand, r: both overlap 90% each
 
+print(inter_both_BED)
+
 
 # calculate sequence length
 def len_seq(bed_file):
@@ -23,9 +25,9 @@ def len_seq(bed_file):
 
 
 # save file lengths for reuse
-len_one = len_seq(file.bed_one)
-len_two = len_seq(file.bed_two)
-len_inter = len_seq(inter_both_BED)
+len_one = len_seq(set(file.bed_one))
+len_two = len_seq(set(file.bed_two))
+len_inter = len_seq(set(inter_both_BED))
 
 
 # calculate overlap quotient with log:
@@ -67,18 +69,18 @@ second_file_log = overlap_file_log(len_two, len_inter)
 #c = len_two * second_file_log  # overlap_file_log(bed_two, inter_both_BED)
 #d = len_two - c
 alpha = 0.05
-a = len_one - len_inter
-b = len_one - a
-c = len_two - len_inter
-d = len_two - c
 print("iterln", len_inter)
 print("len1:", len_one)
-print("log1", first_file_log)
-print("1reg", first_file_lazy)
+print("len2:", len_two)
+a = (len_one - len_inter)
+b = (len_one - (len_one - len_inter))
+c = (len_two - len_inter)
+d = (len_two - (len_two - len_inter))
+#print("log1", first_file_log)
+#print("1reg", first_file_lazy)
 print("a", a)
 print("b", b)
-print("len2:", len_two)
-print("log2", second_file_log)
+#print("log2", second_file_log)
 print("c", c)
 print("d", d)
 
@@ -87,6 +89,10 @@ res = stats.fisher_exact([[a, b], [c, d]])
 print('fisher test result: ', res)
 
 
+# break if both files are the same, when a = c = 0
+if a == 0 and c == 0:
+    print("same file can't be tested with themselves")
+    exit()
 
 # level of significance
 if pars.args.alpha is not None:
