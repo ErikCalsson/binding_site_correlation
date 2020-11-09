@@ -5,6 +5,14 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
 from dash.dependencies import Input, Output
+import tkinter
+import matplotlib
+import plotly
+from plotly.offline import plot_mpl
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn2, venn2_circles
+
 
 # imports intern
 import src.data_calculation as data
@@ -41,11 +49,23 @@ df = pd.DataFrame({
 if pars.args.outfile is not None:
     filename = pars.args.outfile + ".csv"
     df.to_csv(filename, index=False)
-#https://medium.com/@ageitgey/python-3-quick-tip-the-easy-way-to-deal-with-file-paths-on-windows-mac-and-linux-11a072b58d5f
+# https://medium.com/@ageitgey/python-3-quick-tip-the-easy-way-to-deal-with-file-paths-on-windows-mac-and-linux-11a072b58d5f
 
 
 # figure
+# TODO change to two(normal and log) Venn-Diagram for better readability
 fig = px.bar(df, x="Degree of Overlap in %", y="Coverage", color="Size", barmode="group")
+
+
+v = venn2((data.len_one, data.len_two, data.len_inter), set_labels=('Group A', 'Group B'))
+matplotlib.pyplot.savefig('VennDiagram.png')
+# a hint, how to convert venn diagram so that it can be shown in browser like the other graphs
+# https://stackoverflow.com/questions/49851280/showing-a-simple-matplotlib-plot-in-plotly-dash
+
+# conversions fails
+# v1 = plot_mpl(v)
+# v2 = plotly.tools.mpl_to_plotly(v1, resize=True, strip_style=True, verbose=True)
+
 
 # app layout
 app.layout = html.Div(children=[
@@ -84,6 +104,21 @@ app.layout = html.Div(children=[
     html.H6("Change these to see if the result for files being 'statistical significant different' changes"),
 
     html.Br(),
+
+    # dcc.Graph(id='venn1', figure=v),
+
+    # following layout error message
+    # dcc.Graph(id='venn1', figure=matplotlib.pyplot.gcf()),
+    # dcc.Graph(id='venn1', plt.gcf()),
+    # plt.figure(),
+
+    # just opens new window
+    plt.show(),
+    # try impeding as image
+    html.Img(src=app.get_asset_url('/src/VennDiagram.png'), style={'height':'60%', 'width':'60%'}),
+
+    html.Br(),
+
 
     # graph
     dcc.Graph(id='overlap_files', figure=fig),
