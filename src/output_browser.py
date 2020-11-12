@@ -64,16 +64,16 @@ reg_anot = [percent_string(data.first_file_lazy),
 
 
 # dataframe output log
-df_log = pd.DataFrame({
-    "Degree of Overlap in %": ["Intersection", fred.name_first,  fred.name_second],
-    "Coverage": [data.both_files_log, data.first_file_log, data.second_file_log],
-    "Size": ["Log 2 Value", "Log 2 Value", "Log 2 Value"]
-})
-log_over = [fred.name_first, "Intersection", fred.name_second]
-log_cov = [data.first_file_log, data.both_files_log, data.second_file_log]
-log_anot = [percent_string(data.first_file_log),
-            percent_string(data.both_files_log),
-            percent_string(data.second_file_log)]
+# df_log = pd.DataFrame({
+#     "Degree of Overlap in %": ["Intersection", fred.name_first,  fred.name_second],
+#     "Coverage": [data.both_files_log, data.first_file_log, data.second_file_log],
+#     "Size": ["Log 2 Value", "Log 2 Value", "Log 2 Value"]
+# })
+# log_over = [fred.name_first, "Intersection", fred.name_second]
+# log_cov = [data.first_file_log, data.both_files_log, data.second_file_log]
+# log_anot = [percent_string(data.first_file_log),
+#             percent_string(data.both_files_log),
+#             percent_string(data.second_file_log)]
 
 
 # writing results to output file
@@ -84,11 +84,7 @@ if pars.args.outfile is not None:
 
 
 # figure
-# TODO change to two(normal and log) Venn-Diagram for better readability
-fig = px.bar(df, x="Degree of Overlap in %", y="Coverage", color="Size", barmode="group")
-# fig_reg = px.bar(df_reg, x="Degree of Overlap in %", y="Coverage", color="Size", barmode="group", labels="Coverage")
-# fig_log = px.bar(df_log, x="Degree of Overlap in %", y="Coverage", color="Size", barmode="group", labels="Coverage")
-
+# fig = px.bar(df, x="Degree of Overlap in %", y="Coverage", color="Size", barmode="group")
 z = [12, 24, 48]
 layout = go.Layout(
     plot_bgcolor="#FFF",  # Sets background color to white
@@ -105,9 +101,10 @@ fig_reg = go.Figure(data=[go.Bar(
     marker=dict(color=z, colorscale='viridis')
 )],
     layout=layout)
-fig_log = go.Figure(data=[go.Bar(
-    x=log_over, y=log_cov, text=log_anot, textposition='auto'
-)])
+
+# fig_log = go.Figure(data=[go.Bar(
+#     x=log_over, y=log_cov, text=log_anot, textposition='auto'
+# )])
 
 
 v = venn2((data.len_one, data.len_two, data.len_inter), set_labels=('Group A', 'Group B'))
@@ -143,37 +140,19 @@ app.layout = html.Div(children=[
 
 
     # graph
-    html.H6("Actual percent values of the degree of overlap"),
+    # TODO add both following lines as single numbers to their bar's
+    html.H6("In " + fred.name_first + " " + str(data.bp_over_one) + " of " + str(data.bp_file_one) + " are overlapping "),
+    html.H6("In " + fred.name_second + " " + str(data.bp_over_two) + " of " + str(data.bp_file_two) + " are overlapping "),
     dcc.Graph(id='overlap_reg', figure=fig_reg),
 
     # html.H6("Degree of overlap adjusted with log 2 as to compensate for different file sizes"),
     # dcc.Graph(id='overlap_log', figure=fig_log),
 
 
-    #dcc.Graph(id='overlap_files', figure=fig),
-    #html.H6("Shown is 1. degree overlap between both files in reference to their "
-    #        "combined length, 2. degree overlap of first file in reference to it's "
-    #        "length and 3. degree overlap of second file in reference to it's length "),
-
-    #dcc.Graph(
-    #    id='overlap-graph',
-    #    figure={
-    #        'data': [
-    #            {'x': [1, 2, 3], 'y': [data.both_files_lazy, data.first_file_lazy, data.second_file_lazy],
-    #             'type': 'bar', 'name': 'Actual Value'},
-    #            {'x': [1, 2, 3], 'y': [data.both_files_log, data.first_file_log, data.second_file_log],
-    #             'type': 'bar', 'name': u'Log 2 Value'},
-    #        ],
-    #        'layout': {
-    #            'title': 'Dash Data Visualization',
-    #            'xaxis': {'type': 'text', 'title': "Coverage"},
-    #            'yaxis': {'type': 'linear', 'title': "Degree of Overlap in %"}
-    #        }
-    #    }
-    #),
-    #html.H6("Shown is 1. degree overlap between both files in reference to their "
-    #        "combined length, 2. degree overlap of first file in reference to it's "
-    #        "length and 3. degree overlap of second file in reference to it's length "),
+    # dcc.Graph(id='overlap_files', figure=fig),
+    # html.H6("Shown is 1. degree overlap between both files in reference to their "
+    #         "combined length, 2. degree overlap of first file in reference to it's "
+    #         "length and 3. degree overlap of second file in reference to it's length "),
 
     html.Br(),
 
