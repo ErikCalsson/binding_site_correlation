@@ -113,36 +113,6 @@ app.layout = html.Div(children=[
 
     html.Div(id='output_container', children=[]),
 
-    # input for alpha and degrees of freedom
-    html.H6(children='Degree of Freedom: '),
-    dcc.Slider(
-        id='freedom_slider',
-        min=1,
-        max=20,
-        value=data.freedom,
-        marks={'1': '1', '5': '5', '10': '10', '15': '15',  '20': '20'}
-    ),
-    html.H6(children='Alpha-Value: '),
-    # slider for alpha value
-    # dropdown for alpha value
-    # TODO field for custom alpha value
-    dcc.Dropdown(
-        id='alpha_dropdown',
-        options=[
-            {'label': '0.01%', 'value': '0.0001'},
-            {'label': '0.1%', 'value': '0.001'},
-            {'label': '1%', 'value': '0.01'},
-            {'label': '5%', 'value': '0.05'},
-            {'label': '10%', 'value': '0.1'}
-
-        ],
-        value=data.alpha
-    ),
-
-    html.H6("Change these to see if the result for files being 'statistical significant different' changes"),
-
-    html.Br(),
-
     # dcc.Graph(id='venn1', figure=v),
 
     # following layout error message
@@ -161,8 +131,8 @@ app.layout = html.Div(children=[
     html.H6("Actual percent values of the degree of overlap"),
     dcc.Graph(id='overlap_reg', figure=fig_reg),
 
-    html.H6("Degree of overlap adjusted with log 2 as to compensate for different file sizes"),
-    dcc.Graph(id='overlap_log', figure=fig_log),
+    # html.H6("Degree of overlap adjusted with log 2 as to compensate for different file sizes"),
+    # dcc.Graph(id='overlap_log', figure=fig_log),
 
 
     #dcc.Graph(id='overlap_files', figure=fig),
@@ -189,6 +159,36 @@ app.layout = html.Div(children=[
     #html.H6("Shown is 1. degree overlap between both files in reference to their "
     #        "combined length, 2. degree overlap of first file in reference to it's "
     #        "length and 3. degree overlap of second file in reference to it's length "),
+
+    html.Br(),
+
+# input for alpha and degrees of freedom
+    html.H6(children='Degree of Freedom: '),
+    dcc.Slider(
+        id='freedom_slider',
+        min=0,
+        max=2,
+        value=data.freedom,
+        # marks={'1': '1', '5': '5', '10': '10', '15': '15',  '20': '20'}
+    ),
+    html.H6(children='Alpha-Value: '),
+    # slider for alpha value
+    # dropdown for alpha value
+    # TODO field for custom alpha value
+    dcc.Dropdown(
+        id='alpha_dropdown',
+        options=[
+            {'label': '0.01%', 'value': '0.0001'},
+            {'label': '0.1%', 'value': '0.001'},
+            {'label': '1%', 'value': '0.01'},
+            {'label': '5%', 'value': '0.05'},
+            {'label': '10%', 'value': '0.1'}
+
+        ],
+        value=data.alpha
+    ),
+
+    html.H6("Change these to see if the result for files being 'statistical significant different' changes"),
 
     html.Br(),
 
