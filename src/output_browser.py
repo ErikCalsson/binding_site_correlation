@@ -35,7 +35,7 @@ df_chi = pd.DataFrame({
 
 # --------------------------------------------
 def percent_string(number):
-    clean = int(number * 100)
+    clean = round(number * 100, 2)
     return "~" + str(clean) + "%"
 
 
