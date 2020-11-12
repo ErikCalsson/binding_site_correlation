@@ -18,6 +18,7 @@ from matplotlib_venn import venn2  # , venn2_circles
 # imports intern
 import src.data_calculation as data
 import src.argument_parser as pars
+import src.file_reader as fred
 
 
 # start dash
@@ -51,11 +52,11 @@ df = pd.DataFrame({
 
 # dataframe output regular
 df_reg = pd.DataFrame({
-    "Degree of Overlap in %": ["Intersection", "First File", "Second File"],
+    "Degree of Overlap in %": ["Intersection", fred.name_first,  fred.name_second],
     "Coverage": [data.both_files_lazy, data.first_file_lazy, data.second_file_lazy],
     "Size": ["Actual Value", "Actual Value", "Actual Value"],
 })
-reg_over = ["First File", "Intersection", "Second File"]
+reg_over = [fred.name_first, "Intersection", fred.name_second]
 reg_cov = [data.first_file_lazy, data.both_files_lazy, data.second_file_lazy]
 reg_anot = [percent_string(data.first_file_lazy),
             percent_string(data.both_files_lazy),
@@ -64,11 +65,11 @@ reg_anot = [percent_string(data.first_file_lazy),
 
 # dataframe output log
 df_log = pd.DataFrame({
-    "Degree of Overlap in %": ["Intersection", "First File", "Second File"],
+    "Degree of Overlap in %": ["Intersection", fred.name_first,  fred.name_second],
     "Coverage": [data.both_files_log, data.first_file_log, data.second_file_log],
     "Size": ["Log 2 Value", "Log 2 Value", "Log 2 Value"]
 })
-log_over = ["First File", "Intersection", "Second File"]
+log_over = [fred.name_first, "Intersection", fred.name_second]
 log_cov = [data.first_file_log, data.both_files_log, data.second_file_log]
 log_anot = [percent_string(data.first_file_log),
             percent_string(data.both_files_log),
@@ -87,9 +88,23 @@ if pars.args.outfile is not None:
 fig = px.bar(df, x="Degree of Overlap in %", y="Coverage", color="Size", barmode="group")
 # fig_reg = px.bar(df_reg, x="Degree of Overlap in %", y="Coverage", color="Size", barmode="group", labels="Coverage")
 # fig_log = px.bar(df_log, x="Degree of Overlap in %", y="Coverage", color="Size", barmode="group", labels="Coverage")
+
+z = [12, 24, 48]
+layout = go.Layout(
+    plot_bgcolor="#FFF",  # Sets background color to white
+    xaxis=dict(
+        linecolor="#BCCCDC",  # Sets color of X-axis line
+    ),
+    yaxis=dict(
+        linecolor="#BCCCDC",  # Sets color of Y-axis line
+    )
+)
 fig_reg = go.Figure(data=[go.Bar(
-    x=reg_over, y=reg_cov, text=reg_anot, textposition='auto'
-)])
+    x=reg_over, y=reg_cov, text=reg_anot, textposition='auto',
+    # marker=dict(color=z, colorscale=['#800000', '#3cb44b', '#000075'])
+    marker=dict(color=z, colorscale='viridis')
+)],
+    layout=layout)
 fig_log = go.Figure(data=[go.Bar(
     x=log_over, y=log_cov, text=log_anot, textposition='auto'
 )])
@@ -162,7 +177,7 @@ app.layout = html.Div(children=[
 
     html.Br(),
 
-# input for alpha and degrees of freedom
+    # input for alpha and degrees of freedom
     html.H6(children='Degree of Freedom: '),
     dcc.Slider(
         id='freedom_slider',
