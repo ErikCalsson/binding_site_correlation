@@ -104,8 +104,8 @@ def calc_chi(free, alp):
 
 
 # TODO use Fisher Test for better/advanced comparison of p-values?
-# res = stats.fisher_exact([[a, b], [c, d]])
-# print('fisher test result: ', res)
+res = stats.fisher_exact([[a, b], [c, d]])
+print('fisher test result: ', res)
 
 # perform chi-square test for program start
 chi_results, chi_text = calc_chi(freedom, alpha)
