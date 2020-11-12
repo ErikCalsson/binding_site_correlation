@@ -109,3 +109,20 @@ print('fisher test result: ', res)
 
 # perform chi-square test for program start
 chi_results, chi_text = calc_chi(freedom, alpha)
+
+
+# convert sequence length to appropriate bp unit
+def conv_seq_len(seq_len):
+    if seq_len > 1000:
+        return str(round(seq_len / 1000, 1)) + "kbp"
+    elif seq_len > 1000000:
+        return str(round(seq_len / 1000000, 1)) + "mbp"
+    else:
+        return str(seq_len) + "bp"
+
+
+# length of file and overlapping features in bp, kbp or mbp
+bp_file_one = conv_seq_len(len_one)
+bp_over_one = conv_seq_len(a)
+bp_file_two = conv_seq_len(len_two)
+bp_over_two = conv_seq_len(c)
