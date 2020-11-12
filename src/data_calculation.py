@@ -63,25 +63,11 @@ second_file_log = overlap_file_log(len_two, len_inter)
 
 
 # chi_square test x: a=covered and b=not covered from 1 vs y: c=covered und d=not covered from 2
-#a = len_one * first_file_log  # = overlap_file_log(bed_one, inter_both_BED)
-#b = len_one - a  # a + b = len_one
-#c = len_two * second_file_log  # overlap_file_log(bed_two, inter_both_BED)
-#d = len_two - c
 alpha = 0.05
-print("iterln", len_inter)
-print("len1:", len_one)
-print("len2:", len_two)
 a = (len_one - len_inter)
 b = (len_one - (len_one - len_inter))
 c = (len_two - len_inter)
 d = (len_two - (len_two - len_inter))
-#print("log1", first_file_log)
-#print("1reg", first_file_lazy)
-print("a", a)
-print("b", b)
-#print("log2", second_file_log)
-print("c", c)
-print("d", d)
 
 
 # break if both files are the same, when a = c = 0
@@ -118,8 +104,8 @@ def calc_chi(free, alp):
 
 
 # TODO use Fisher Test for better/advanced comparison of p-values?
-res = stats.fisher_exact([[a, b], [c, d]])
-print('fisher test result: ', res)
+# res = stats.fisher_exact([[a, b], [c, d]])
+# print('fisher test result: ', res)
 
 # perform chi-square test for program start
 chi_results, chi_text = calc_chi(freedom, alpha)
