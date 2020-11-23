@@ -3,7 +3,7 @@ The scope of this project is to write a small tool to analyze the overlap betwee
 
 ### Input
 
-Two BED6 formatted files.
+Two BED6 formatted files with their complete file path.
 
 ### Output
 
@@ -13,7 +13,7 @@ Statisticts about the overlap of the BED files to console -- or to a given file 
 
 ### Input
 
-Two BED6 formatted files.
+Two BED6 formatted files with their complete file path.
 
 ### Output
 
