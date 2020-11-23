@@ -31,6 +31,7 @@ def len_seq(bed_file):
 # save file lengths for reuse, applying merge to combine overlapping features on same strand into a single one
 len_one = len_seq(pt.BedTool.merge(file.bed_one, s=True))
 len_two = len_seq(pt.BedTool.merge(file.bed_two, s=True))
+# TODO make merge and intersect from BedTolls work together
 # len_inter = len_seq(pt.BedTool.merge(inter_both_BED, s=True))
 # len_one = len_seq(file.bed_one)
 # len_two = len_seq(file.bed_two)
@@ -117,6 +118,7 @@ res = stats.fisher_exact([[a, b], [c, d]])
 print('fisher test result: ', res)
 
 # perform chi-square test for program start
+# reference https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html
 chi_results, chi_text = calc_chi(freedom, alpha)
 
 
