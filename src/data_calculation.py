@@ -9,8 +9,13 @@ import src.file_reader as file
 import src.argument_parser as pars
 
 
+# merging files with themselves to remove redundant overlaps
+# merge_one = pt.BedTool.merge(file.bed_one, s=True)
+# merge_two = pt.BedTool.merge(file.bed_two, s=True)
+
 # intersect both files
 inter_both_BED = file.bed_one.intersect(file.bed_two, s=True, r=True, wb=True)
+# inter_both_BED = merge_one.intersect(merge_two, s=True, r=True, wb=True) #merge and intersect error
 # s: overlap on same stand, r: both overlap 90% each
 
 
@@ -26,7 +31,10 @@ def len_seq(bed_file):
 # save file lengths for reuse, applying merge to combine overlapping features on same strand into a single one
 len_one = len_seq(pt.BedTool.merge(file.bed_one, s=True))
 len_two = len_seq(pt.BedTool.merge(file.bed_two, s=True))
-len_inter = len_seq(pt.BedTool.merge(inter_both_BED, s=True))
+# len_inter = len_seq(pt.BedTool.merge(inter_both_BED, s=True))
+# len_one = len_seq(file.bed_one)
+# len_two = len_seq(file.bed_two)
+len_inter = len_seq(inter_both_BED)
 
 
 # calculate overlap quotient with log:
@@ -94,6 +102,7 @@ else:
 # calculate chi-square test
 def calc_chi(free, alp):
     val_str = 'Values'
+    # reference https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chisquare.html
     chi_value = stats.chisquare([[a, b], [c, d]], axis=None, f_exp=sci_out[3], ddof=free)
     if chi_value[1] > alp:
         val_str += ' are not '
