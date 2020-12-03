@@ -97,9 +97,9 @@ layout = go.Layout(
 )
 fig_reg = go.Figure(data=[go.Bar(
     x=reg_over, y=reg_cov, text=reg_anot, textposition='auto',
-    marker=dict(color=z, colorscale=['#5d35ff', '#ffe135', '##ff7835'])
+    marker=dict(color=z, colorscale=['#460f54', '#c0ff2e', '#ffb22e'])
     # better colour scheme: https://www.sessions.edu/color-calculator/
-    # marker=dict(color=z, colorscale='viridis')
+    #marker=dict(color=z, colorscale='viridis')
 )],
     layout=layout)
 
