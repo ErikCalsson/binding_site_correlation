@@ -77,11 +77,6 @@ a = (len_one - len_inter)
 b = (len_one - a)
 c = (len_two - len_inter)
 d = (len_two - c)
-print("len Inter: ", len_inter)
-print(a)
-print(b)
-print(c)
-print(d)
 
 
 # break if both files are the same, when a = c = 0
