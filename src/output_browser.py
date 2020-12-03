@@ -3,7 +3,7 @@ import pandas as pd
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import plotly.express as px
+# import plotly.express as px
 import plotly.graph_objects as go
 from dash.dependencies import Input, Output
 # import tkinter
@@ -97,8 +97,9 @@ layout = go.Layout(
 )
 fig_reg = go.Figure(data=[go.Bar(
     x=reg_over, y=reg_cov, text=reg_anot, textposition='auto',
-    # marker=dict(color=z, colorscale=['#800000', '#3cb44b', '#000075'])
-    marker=dict(color=z, colorscale='viridis')
+    marker=dict(color=z, colorscale=['#5d35ff', '#ffe135', '##ff7835'])
+    # better colour scheme: https://www.sessions.edu/color-calculator/
+    # marker=dict(color=z, colorscale='viridis')
 )],
     layout=layout)
 
