@@ -97,9 +97,9 @@ layout = go.Layout(
 )
 fig_reg = go.Figure(data=[go.Bar(
     x=reg_over, y=reg_cov, text=reg_anot, textposition='auto',
-    marker=dict(color=z, colorscale=['#460f54', '#c0ff2e', '#ffb22e'])
+    marker=dict(color=z, colorscale=['#2e0c57', '#fff822', '#ff8522'])
     # better colour scheme: https://www.sessions.edu/color-calculator/
-    #marker=dict(color=z, colorscale='viridis')
+    # marker=dict(color=z, colorscale='viridis')
 )],
     layout=layout)
 
@@ -142,8 +142,10 @@ app.layout = html.Div(children=[
 
     # graph
     # TODO add both following lines as single numbers to their bar's
-    html.H6("In " + fred.name_first + " " + str(data.bp_over_one) + " of " + str(data.bp_file_one) + " are overlapping "),
-    html.H6("In " + fred.name_second + " " + str(data.bp_over_two) + " of " + str(data.bp_file_two) + " are overlapping "),
+    html.H6("In " + fred.name_first + " " + str(data.bp_over_one) + " of " +
+            str(data.bp_file_one) + " are overlapping "),
+    html.H6("In " + fred.name_second + " " + str(data.bp_over_two) + " of " +
+            str(data.bp_file_two) + " are overlapping "),
     dcc.Graph(id='overlap_reg', figure=fig_reg),
 
     # html.H6("Degree of overlap adjusted with log 2 as to compensate for different file sizes"),
