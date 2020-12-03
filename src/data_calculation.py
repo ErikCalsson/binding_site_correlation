@@ -10,13 +10,17 @@ import src.argument_parser as pars
 
 
 # merging files with themselves to remove redundant overlaps
-# merge_one = pt.BedTool.merge(file.bed_one, s=True)
-# merge_two = pt.BedTool.merge(file.bed_two, s=True)
+# merge_one = pt.BedTool.merge(file.bed_one, s=True, bed=True)
+# merge_two = pt.BedTool.merge(file.bed_two, s=True, bed=True)
 
 # intersect both files
-inter_both_BED = file.bed_one.intersect(file.bed_two, s=True, r=True, wb=True)
-# inter_both_BED = merge_one.intersect(merge_two, s=True, r=True, wb=True) #merge and intersect error
+inter_both = file.bed_one.intersect(file.bed_two, s=True, r=True, bed=True, sorted=True)
 # s: overlap on same stand, r: both overlap 90% each
+# inter_both_BED = merge_one.intersect(merge_two, s=True, r=True, bed=True)
+
+
+# sorting intersection for merge operation later
+inter_both_BED = pt.BedTool.sort(inter_both)
 
 
 # calculate sequence length
@@ -31,11 +35,7 @@ def len_seq(bed_file):
 # save file lengths for reuse, applying merge to combine overlapping features on same strand into a single one
 len_one = len_seq(pt.BedTool.merge(file.bed_one, s=True))
 len_two = len_seq(pt.BedTool.merge(file.bed_two, s=True))
-# TODO make merge and intersect from BedTolls work together
-# len_inter = len_seq(pt.BedTool.merge(inter_both_BED, s=True))
-# len_one = len_seq(file.bed_one)
-# len_two = len_seq(file.bed_two)
-len_inter = len_seq(inter_both_BED)
+len_inter = len_seq(pt.BedTool.merge(inter_both_BED, s=True))
 
 
 # calculate overlap quotient with log:
@@ -77,6 +77,11 @@ a = (len_one - len_inter)
 b = (len_one - a)
 c = (len_two - len_inter)
 d = (len_two - c)
+print("len Inter: ", len_inter)
+print(a)
+print(b)
+print(c)
+print(d)
 
 
 # break if both files are the same, when a = c = 0
