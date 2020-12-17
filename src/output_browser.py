@@ -64,16 +64,16 @@ reg_anot = [percent_string(data.first_file_lazy),
 
 
 # dataframe output log
-# df_log = pd.DataFrame({
+#df_log = pd.DataFrame({
 #     "Degree of Overlap in %": ["Intersection", fred.name_first,  fred.name_second],
 #     "Coverage": [data.both_files_log, data.first_file_log, data.second_file_log],
 #     "Size": ["Log 2 Value", "Log 2 Value", "Log 2 Value"]
-# })
-# log_over = [fred.name_first, "Intersection", fred.name_second]
-# log_cov = [data.first_file_log, data.both_files_log, data.second_file_log]
-# log_anot = [percent_string(data.first_file_log),
-#             percent_string(data.both_files_log),
-#             percent_string(data.second_file_log)]
+#})
+#log_over = [fred.name_first, "Intersection", fred.name_second]
+#log_cov = [data.first_file_log, data.both_files_log, data.second_file_log]
+#log_anot = [percent_string(data.first_file_log),
+#            percent_string(data.both_files_log),
+#            percent_string(data.second_file_log)]
 
 
 # writing results to output file
@@ -103,9 +103,10 @@ fig_reg = go.Figure(data=[go.Bar(
 )],
     layout=layout)
 
-# fig_log = go.Figure(data=[go.Bar(
-#     x=log_over, y=log_cov, text=log_anot, textposition='auto'
-# )])
+#fig_log = go.Figure(data=[go.Bar(
+#    x=log_over, y=log_cov, text=log_anot, textposition='auto',
+#    marker=dict(color=z, colorscale=['#2e0c57', '#fff822', '#ff8522'])
+#)])
 
 
 v = venn2((data.len_one, data.len_two, data.len_inter), set_labels=('Group A', 'Group B'))
@@ -147,6 +148,7 @@ app.layout = html.Div(children=[
     html.H6("In " + fred.name_second + " " + str(data.bp_over_two) + " of " +
             str(data.bp_file_two) + " are overlapping "),
     dcc.Graph(id='overlap_reg', figure=fig_reg),
+    #dcc.Graph(id='overlap_log', figure=fig_log),
 
     # html.H6("Degree of overlap adjusted with log 2 as to compensate for different file sizes"),
     # dcc.Graph(id='overlap_log', figure=fig_log),
