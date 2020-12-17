@@ -73,10 +73,10 @@ second_file_log = overlap_file_log(len_two, len_inter)
 
 # chi_square test x: a=covered and b=not covered from 1 vs y: c=covered und d=not covered from 2
 alpha = 0.05
-a = (len_one - len_inter)
-b = (len_one - a)
-c = (len_two - len_inter)
-d = (len_two - c)
+a = np.math.log(len_one - len_inter)
+b = np.math.log(len_one - (len_one - len_inter))
+c = np.math.log(len_two - len_inter)
+d = np.math.log(len_two - (len_two - len_inter))
 
 
 # break if both files are the same, when a = c = 0
