@@ -9,10 +9,6 @@ import src.file_reader as file
 import src.argument_parser as pars
 
 
-# merging files with themselves to remove redundant overlaps
-# merge_one = pt.BedTool.merge(file.bed_one, s=True, bed=True)
-# merge_two = pt.BedTool.merge(file.bed_two, s=True, bed=True)
-
 # intersect both files
 inter_both = file.bed_one.intersect(file.bed_two, s=True, r=True, bed=True, sorted=True)
 # s: overlap on same stand, r: both overlap 90% each
@@ -21,6 +17,11 @@ inter_both = file.bed_one.intersect(file.bed_two, s=True, r=True, bed=True, sort
 
 # sorting intersection for merge operation later
 inter_both_BED = pt.BedTool.sort(inter_both)
+
+# merging files with themselves to remove redundant overlaps
+merge_one = pt.BedTool.merge(file.bed_one, s=True)
+merge_two = pt.BedTool.merge(file.bed_two, s=True)
+merge_inter = pt.BedTool.merge(inter_both_BED, s=True)
 
 
 # calculate sequence length
@@ -33,9 +34,9 @@ def len_seq(bed_file):
 
 
 # save file lengths for reuse, applying merge to combine overlapping features on same strand into a single one
-len_one = len_seq(pt.BedTool.merge(file.bed_one, s=True))
-len_two = len_seq(pt.BedTool.merge(file.bed_two, s=True))
-len_inter = len_seq(pt.BedTool.merge(inter_both_BED, s=True))
+len_one = len_seq(merge_one)  # pt.BedTool.merge(file.bed_one, s=True))
+len_two = len_seq(merge_two)  # pt.BedTool.merge(file.bed_two, s=True))
+len_inter = len_seq(merge_inter)  # pt.BedTool.merge(inter_both_BED, s=True))
 
 
 # calculate overlap quotient with log:
@@ -137,3 +138,21 @@ bp_file_one = conv_seq_len(len_one)
 bp_over_one = conv_seq_len(a)
 bp_file_two = conv_seq_len(len_two)
 bp_over_two = conv_seq_len(c)
+
+
+# BedTools .getfasta for extracting sequence
+# https://bedtools.readthedocs.io/en/latest/content/tools/getfasta.html
+
+# ref seq: https://www.ncbi.nlm.nih.gov/assembly/GCF_000001735.3/
+# RefSeq; Genomic FASTA (.fna)
+
+kMin = 1
+if pars.args.kmin is not None:
+    kMin = pars.args.kmin
+
+seq_one = pt.BedTool.getfasta(file.ref_fasta, merge_one, s=True)
+seq_two = pt.BedTool.getfasta(file.ref_fasta, merge_two, s=True)
+seq_inter = pt.BedTool.getfasta(file.ref_fasta, merge_inter, s=True)
+
+# TODO k-mer analysis
+
