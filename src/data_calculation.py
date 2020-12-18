@@ -1,15 +1,26 @@
 # imports extern
 import numpy as np
 import scipy.stats as stats
+import pybedtools as pt
+
 
 # imports intern
 import src.file_reader as file
 import src.argument_parser as pars
 
 
+# merging files with themselves to remove redundant overlaps
+# merge_one = pt.BedTool.merge(file.bed_one, s=True, bed=True)
+# merge_two = pt.BedTool.merge(file.bed_two, s=True, bed=True)
+
 # intersect both files
-inter_both_BED = file.bed_one.intersect(file.bed_two, s=True, r=True)
+inter_both = file.bed_one.intersect(file.bed_two, s=True, r=True, bed=True, sorted=True)
 # s: overlap on same stand, r: both overlap 90% each
+# inter_both_BED = merge_one.intersect(merge_two, s=True, r=True, bed=True)
+
+
+# sorting intersection for merge operation later
+inter_both_BED = pt.BedTool.sort(inter_both)
 
 
 # calculate sequence length
@@ -21,23 +32,21 @@ def len_seq(bed_file):
     return seq_len
 
 
-# save file lengths for reuse
-len_one = len_seq(file.bed_one)
-len_two = len_seq(file.bed_two)
-len_inter = len_seq(inter_both_BED)
+# save file lengths for reuse, applying merge to combine overlapping features on same strand into a single one
+len_one = len_seq(pt.BedTool.merge(file.bed_one, s=True))
+len_two = len_seq(pt.BedTool.merge(file.bed_two, s=True))
+len_inter = len_seq(pt.BedTool.merge(inter_both_BED, s=True))
 
 
 # calculate overlap quotient with log:
 def overlap_quotient_log(len_first, len_second, len_inter_both):
     union_ab = len_first + len_second - len_inter_both
-    # print("normal overlap", len(intersection_ab) / union_ab)
     return np.math.log(len_inter_both) / np.math.log(union_ab)
 
 
 # calculate overlap quotient lazy:
 def overlap_quotient_regular(len_first, len_second, len_inter_both):
     union_ab = len_first + len_second - len_inter_both
-    # print("normal overlap", len(intersection_ab) / union_ab)
     return len_inter_both / union_ab
 
 
@@ -51,25 +60,29 @@ def overlap_file_regular(len_bed, len_inter_both):
     return len_inter_both / len_bed
 
 
-# assign output values,
-# TODO remove absolute values later ?
+# assign % output values
 both_files_lazy = overlap_quotient_regular(len_one, len_two, len_inter)
 first_file_lazy = overlap_file_regular(len_one, len_inter)
 second_file_lazy = overlap_file_regular(len_two, len_inter)
 
-# assign output values, relatives with log2
+# assign % output values, relatives with log2
 both_files_log = overlap_quotient_log(len_one, len_two, len_inter)
 first_file_log = overlap_file_log(len_one, len_inter)
 second_file_log = overlap_file_log(len_two, len_inter)
 
 
 # chi_square test x: a=covered and b=not covered from 1 vs y: c=covered und d=not covered from 2
-a = len_one * first_file_log  # = overlap_file_log(bed_one, inter_both_BED)
-b = len_one - a  # a + b = len_one
-c = len_two * second_file_log  # overlap_file_log(bed_two, inter_both_BED)
-d = len_two - c
 alpha = 0.05
+a = np.math.log(len_one - len_inter)
+b = np.math.log(len_one - (len_one - len_inter))
+c = np.math.log(len_two - len_inter)
+d = np.math.log(len_two - (len_two - len_inter))
 
+
+# break if both files are the same, when a = c = 0
+if a == 0 and c == 0:
+    print("same file can't be tested with themselves")
+    exit()
 
 # level of significance
 if pars.args.alpha is not None:
@@ -90,16 +103,37 @@ else:
 # calculate chi-square test
 def calc_chi(free, alp):
     val_str = 'Values'
+    # reference https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chisquare.html
     chi_value = stats.chisquare([[a, b], [c, d]], axis=None, f_exp=sci_out[3], ddof=free)
-    if chi_value[1] < alp:
-        val_str += ' are '
+    if chi_value[1] > alp:
+        val_str += ' are not '
     else:
-        val_str += ' may be not '
+        val_str += ' may be '
     val_str += 'statistical significant different with:'
     return chi_value, val_str
 
 
 # TODO use Fisher Test for better/advanced comparison of p-values?
+res = stats.fisher_exact([[a, b], [c, d]])
+print('fisher test result: ', res)
 
 # perform chi-square test for program start
+# reference https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html
 chi_results, chi_text = calc_chi(freedom, alpha)
+
+
+# convert sequence length to appropriate bp unit
+def conv_seq_len(seq_len):
+    if seq_len > 1000:
+        return str(round(seq_len / 1000, 1)) + "kbp"
+    elif seq_len > 1000000:
+        return str(round(seq_len / 1000000, 1)) + "mbp"
+    else:
+        return str(seq_len) + "bp"
+
+
+# length of file and overlapping features in bp, kbp or mbp
+bp_file_one = conv_seq_len(len_one)
+bp_over_one = conv_seq_len(a)
+bp_file_two = conv_seq_len(len_two)
+bp_over_two = conv_seq_len(c)

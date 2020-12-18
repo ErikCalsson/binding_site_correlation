@@ -3,12 +3,22 @@ import pandas as pd
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import plotly.express as px
+# import plotly.express as px
+import plotly.graph_objects as go
 from dash.dependencies import Input, Output
+# import tkinter
+import matplotlib
+# import plotly
+# from plotly.offline import plot_mpl
+# matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn2  # , venn2_circles
+
 
 # imports intern
 import src.data_calculation as data
 import src.argument_parser as pars
+import src.file_reader as fred
 
 
 # start dash
@@ -25,27 +35,89 @@ df_chi = pd.DataFrame({
 
 
 # --------------------------------------------
-# visualisation of output data
+def percent_string(number):
+    clean = round(number * 100, 2)
+    return "~" + str(clean) + "%"
 
+
+# visualisation of output data
 # dataframe for output
 df = pd.DataFrame({
-    "Overlap": ["Quotient", "First File", "Second File", "Quotient", "First File", "Second File"],
+    "Degree of Overlap in %": ["Quotient", "First File", "Second File", "Quotient", "First File", "Second File"],
     "Coverage": [data.both_files_lazy, data.first_file_lazy, data.second_file_lazy,
                  data.both_files_log, data.first_file_log, data.second_file_log],
-    "Size": ["Absolute", "Absolute", "Absolute",
-             "Log 2", "Log 2", "Log 2"]
+    "Size": ["Actual Value", "Actual Value", "Actual Value",
+             "Log 2 Value", "Log 2 Value", "Log 2 Value"]
 })
+
+# dataframe output regular
+df_reg = pd.DataFrame({
+    "Degree of Overlap in %": ["Intersection", fred.name_first,  fred.name_second],
+    "Coverage": [data.both_files_lazy, data.first_file_lazy, data.second_file_lazy],
+    "Size": ["Actual Value", "Actual Value", "Actual Value"],
+})
+reg_over = [fred.name_first, "Intersection", fred.name_second]
+reg_cov = [data.first_file_lazy, data.both_files_lazy, data.second_file_lazy]
+reg_anot = [percent_string(data.first_file_lazy),
+            percent_string(data.both_files_lazy),
+            percent_string(data.second_file_lazy)]
+
+
+# dataframe output log
+#df_log = pd.DataFrame({
+#     "Degree of Overlap in %": ["Intersection", fred.name_first,  fred.name_second],
+#     "Coverage": [data.both_files_log, data.first_file_log, data.second_file_log],
+#     "Size": ["Log 2 Value", "Log 2 Value", "Log 2 Value"]
+#})
+#log_over = [fred.name_first, "Intersection", fred.name_second]
+#log_cov = [data.first_file_log, data.both_files_log, data.second_file_log]
+#log_anot = [percent_string(data.first_file_log),
+#            percent_string(data.both_files_log),
+#            percent_string(data.second_file_log)]
 
 
 # writing results to output file
 if pars.args.outfile is not None:
     filename = pars.args.outfile + ".csv"
     df.to_csv(filename, index=False)
-#https://medium.com/@ageitgey/python-3-quick-tip-the-easy-way-to-deal-with-file-paths-on-windows-mac-and-linux-11a072b58d5f
+# https://medium.com/@ageitgey/python-3-quick-tip-the-easy-way-to-deal-with-file-paths-on-windows-mac-and-linux-11a072b58d5f
 
 
 # figure
-fig = px.bar(df, x="Overlap", y="Coverage", color="Size", barmode="group")
+# fig = px.bar(df, x="Degree of Overlap in %", y="Coverage", color="Size", barmode="group")
+z = [12, 24, 48]
+layout = go.Layout(
+    plot_bgcolor="#FFF",  # Sets background color to white
+    xaxis=dict(
+        linecolor="#BCCCDC",  # Sets color of X-axis line
+    ),
+    yaxis=dict(
+        linecolor="#BCCCDC",  # Sets color of Y-axis line
+    )
+)
+fig_reg = go.Figure(data=[go.Bar(
+    x=reg_over, y=reg_cov, text=reg_anot, textposition='auto',
+    marker=dict(color=z, colorscale=['#2e0c57', '#fff822', '#ff8522'])
+    # better colour scheme: https://www.sessions.edu/color-calculator/
+    # marker=dict(color=z, colorscale='viridis')
+)],
+    layout=layout)
+
+#fig_log = go.Figure(data=[go.Bar(
+#    x=log_over, y=log_cov, text=log_anot, textposition='auto',
+#    marker=dict(color=z, colorscale=['#2e0c57', '#fff822', '#ff8522'])
+#)])
+
+
+v = venn2((data.len_one, data.len_two, data.len_inter), set_labels=('Group A', 'Group B'))
+matplotlib.pyplot.savefig('VennDiagram.png')
+# a hint, how to convert venn diagram so that it can be shown in browser like the other graphs
+# https://stackoverflow.com/questions/49851280/showing-a-simple-matplotlib-plot-in-plotly-dash
+
+# conversions fails
+# v1 = plot_mpl(v)
+# v2 = plotly.tools.mpl_to_plotly(v1, resize=True, strip_style=True, verbose=True)
+
 
 # app layout
 app.layout = html.Div(children=[
@@ -55,26 +127,53 @@ app.layout = html.Div(children=[
 
     html.Div(id='output_container', children=[]),
 
+    # dcc.Graph(id='venn1', figure=v),
+
+    # following layout error message
+    # dcc.Graph(id='venn1', figure=matplotlib.pyplot.gcf()),
+    # dcc.Graph(id='venn1', plt.gcf()),
+    # plt.figure(),
+
+    # just opens new window
+    # plt.show(),
+    # try impeding as image
+    # html.Img(src=app.get_asset_url('/src/VennDiagram.png'), style={'height': '60%', 'width': '60%'}),
+    # html.Br(),
+
+
+    # graph
+    # TODO add both following lines as single numbers to their bar's
+    html.H6("In " + fred.name_first + " " + str(data.bp_over_one) + " of " +
+            str(data.bp_file_one) + " are overlapping "),
+    html.H6("In " + fred.name_second + " " + str(data.bp_over_two) + " of " +
+            str(data.bp_file_two) + " are overlapping "),
+    dcc.Graph(id='overlap_reg', figure=fig_reg),
+    #dcc.Graph(id='overlap_log', figure=fig_log),
+
+    # html.H6("Degree of overlap adjusted with log 2 as to compensate for different file sizes"),
+    # dcc.Graph(id='overlap_log', figure=fig_log),
+
+
+    # dcc.Graph(id='overlap_files', figure=fig),
+    # html.H6("Shown is 1. degree overlap between both files in reference to their "
+    #         "combined length, 2. degree overlap of first file in reference to it's "
+    #         "length and 3. degree overlap of second file in reference to it's length "),
+
+    html.Br(),
+
     # input for alpha and degrees of freedom
+    html.H6(children='Degree of Freedom: '),
     dcc.Slider(
         id='freedom_slider',
-        min=1,
-        max=20,
+        min=0,
+        max=2,
         value=data.freedom,
-        marks={'1': '1', '5': '5', '10': '10', '15': '15',  '20': '20'}
+        # marks={'1': '1', '5': '5', '10': '10', '15': '15',  '20': '20'}
     ),
     html.H6(children='Alpha-Value: '),
     # slider for alpha value
-    # TODO all values from 0.01 to 0.99 as option ?
-    #dcc.Slider(
-    #        id='alpha_slider',
-    #        min=0.01,
-    #        max=0.25,
-    #        value=data.alpha,
-    #        marks={'0.01': '0.01', '0.05': '0.05', '0.10': '0.10', '0.15': '0.15',  '0.20': '0.20',  '0.25': '0.25'}
-    #),
     # dropdown for alpha value
-    # TODO all values from 0.01 to 0.99 as option ?
+    # TODO field for custom alpha value
     dcc.Dropdown(
         id='alpha_dropdown',
         options=[
@@ -88,10 +187,7 @@ app.layout = html.Div(children=[
         value=data.alpha
     ),
 
-    html.Br(),
-
-    # graph
-    dcc.Graph(id='overlap_files', figure=fig),
+    html.H6("Change these to see if the result for files being 'statistical significant different' changes"),
 
     html.Br(),
 

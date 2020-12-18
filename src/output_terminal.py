@@ -23,4 +23,9 @@ if pars.args.outfile is not None:
 
 # start terminal output
 def use_terminal():
+    print(data.chi_text)
+    print(str(data.chi_results[0]))
+    print(str(data.chi_results[1]))
+    print(str(data.alpha))
+    print(str(int(data.freedom)))
     print(df)

@@ -3,21 +3,23 @@ The scope of this project is to write a small tool to analyze the overlap betwee
 
 ### Input
 
-Two BED6 formatted files.
+Two BED6 formatted files with their complete file path.
+BED6 files also sorted according convention.
 
 ### Output
 
-Statisticts about the overlap of the BED files to console -- or to a given file (optional)
+Statistics about the overlap of the BED files to console -- or to a given file (optional)
 
-## Visualization part: Intergration of interactive elements (widgets) using Dash
+## Visualization part: Integration of interactive elements (widgets) using Dash
 
 ### Input
 
-Two BED6 formatted files.
+Two BED6 formatted files with their complete file path.
+BED6 files also sorted according convention.
 
 ### Output
 
-Statisticts about the overlap of the BED files to an interactive and browseable web-application using plotly Dash. 
+Statistics about the overlap of the BED files to an interactive and browseable web-application using plotly Dash. 
 
 
 # Installation instructions
