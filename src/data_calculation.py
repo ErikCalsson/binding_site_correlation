@@ -146,13 +146,19 @@ bp_over_two = conv_seq_len(c)
 # ref seq: https://www.ncbi.nlm.nih.gov/assembly/GCF_000001735.3/
 # RefSeq; Genomic FASTA (.fna)
 
+# BETTER SOURCE FOR FASTA !!!
+#
+
 kMin = 1
 if pars.args.kmin is not None:
     kMin = pars.args.kmin
 
-seq_one = pt.BedTool.getfasta(file.ref_fasta, merge_one, s=True)
-seq_two = pt.BedTool.getfasta(file.ref_fasta, merge_two, s=True)
-seq_inter = pt.BedTool.getfasta(file.ref_fasta, merge_inter, s=True)
+#seq_one = pt.BedTool.getfasta(file.ref_fasta, merge_one, s=True, bedOUT=True)
+seq_one = merge_one.getfasta(fi=file.ref_fasta)  # pt.BedTool.getfasta(fi=file.ref_fasta, bed=merge_one, s=True, bedOUT=True)
+#seq_two = pt.BedTool.getfasta(file.ref_fasta, merge_two, s=True, bedOUT=True)
+seq_two = merge_two.getfasta(fi=file.ref_fasta)
+#seq_inter = pt.BedTool.getfasta(file.ref_fasta, merge_inter, s=True, bedOUT=True)
+seq_inter = merge_inter.getfasta(fi=file.ref_fasta)
 
 # TODO k-mer analysis
 
