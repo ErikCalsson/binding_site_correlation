@@ -1,13 +1,13 @@
 # imports extern
+import pandas as pd
 import numpy as np
 import scipy.stats as stats
 import pybedtools as pt
-
+from itertools import product
 
 # imports intern
 import src.file_reader as file
 import src.argument_parser as pars
-
 
 # intersect both files
 inter_both = file.bed_one.intersect(file.bed_two, s=True, r=True, bed=True, sorted=True)
@@ -71,14 +71,12 @@ both_files_log = overlap_quotient_log(len_one, len_two, len_inter)
 first_file_log = overlap_file_log(len_one, len_inter)
 second_file_log = overlap_file_log(len_two, len_inter)
 
-
 # chi_square test x: a=covered and b=not covered from 1 vs y: c=covered und d=not covered from 2
 alpha = 0.05
 a = np.math.log(len_one - len_inter)
 b = np.math.log(len_one - (len_one - len_inter))
 c = np.math.log(len_two - len_inter)
 d = np.math.log(len_two - (len_two - len_inter))
-
 
 # break if both files are the same, when a = c = 0
 if a == 0 and c == 0:
@@ -89,10 +87,8 @@ if a == 0 and c == 0:
 if pars.args.alpha is not None:
     alpha = float(pars.args.alpha)
 
-
 # reference: https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.chi2_contingency.html
 sci_out = stats.chi2_contingency([[a, b], [c, d]])  # output: x², p-value and degree_of_freedom and expected values
-
 
 # degree of freedom
 if pars.args.freedom is not None:
@@ -139,26 +135,129 @@ bp_over_one = conv_seq_len(a)
 bp_file_two = conv_seq_len(len_two)
 bp_over_two = conv_seq_len(c)
 
-
 # BedTools .getfasta for extracting sequence
 # https://bedtools.readthedocs.io/en/latest/content/tools/getfasta.html
 
-# ref seq: https://www.ncbi.nlm.nih.gov/assembly/GCF_000001735.3/
-# RefSeq; Genomic FASTA (.fna)
-
-# BETTER SOURCE FOR FASTA !!!
-#
 
 kMin = 1
 if pars.args.kmin is not None:
-    kMin = pars.args.kmin
+    kMin = int(pars.args.kmin)
 
-#seq_one = pt.BedTool.getfasta(file.ref_fasta, merge_one, s=True, bedOUT=True)
-seq_one = merge_one.getfasta(fi=file.ref_fasta)  # pt.BedTool.getfasta(fi=file.ref_fasta, bed=merge_one, s=True, bedOUT=True)
-#seq_two = pt.BedTool.getfasta(file.ref_fasta, merge_two, s=True, bedOUT=True)
-seq_two = merge_two.getfasta(fi=file.ref_fasta)
-#seq_inter = pt.BedTool.getfasta(file.ref_fasta, merge_inter, s=True, bedOUT=True)
-seq_inter = merge_inter.getfasta(fi=file.ref_fasta)
+seq_one = merge_one.getfasta(fi=file.ref_fasta, s=True)  # bedOUT=True
+seq_two = merge_two.getfasta(fi=file.ref_fasta, s=True)
+seq_inter = merge_inter.getfasta(fi=file.ref_fasta, s=True)
+
+kMax = 2
+if len_one < len_two and len_one < len_inter:
+    kMax = len_one
+elif len_two < len_one and len_two < len_inter:
+    kMax = len_two
+else:
+    kMax = len_inter
+
 
 # TODO k-mer analysis
 
+
+# generating dict's from kMin to kMax length for all possible k-mer's
+# dict generator
+def dic_mer_gen(k_min, k_max):
+    # TODO ACGT not the only letters in fasta files!
+    seq = ['A', 'C', 'G', 'T']
+    tmp_dict = dict()
+    for i in range(k_min + 1, k_max + 1):
+        tmp_list = [''.join(k_mer) for k_mer in product(seq, repeat=i)]  # k-mer's length i
+        for j in tmp_list:
+            tmp_dict.update({j: 0})
+    return tmp_dict
+
+
+# dict_one = dic_mer_gen(kMin, kMax)
+dict_one = dic_mer_gen(kMin, kMin + 3)
+# dict_two = dic_mer_gen(kMin, kMax)
+dict_two = dict_one
+
+
+# dict_inter = dict_one
+
+
+# https://bioinformatics.stackexchange.com/questions/561/how-to-use-python-to-count-k-mers
+# https://stackoverflow.com/questions/49188432/counting-maximum-k-mer-repetition-frequency
+
+# walking over sequence in k-mer length steps
+def walk_seq(seq, sub_seq):
+    sub_len = len(sub_seq)
+    # assert len(seq) >= sub_len
+    for i in range(0, len(seq) - sub_len + 1):
+        yield seq[i:i + sub_len]
+
+
+# iterating over sequences and counting k-mer appearances
+def count_k_mer(dict_k_mer, seq):
+    for key_mer in dict_k_mer:  # iteration over dict key
+        for chunk in walk_seq(seq, key_mer):
+            if key_mer == chunk:
+                dict_k_mer[key_mer] += 1
+    return dict_k_mer
+
+
+# count_k_mer(dict_one, seq_one)
+# count_k_mer(dict_one, seq_two)
+
+# TODO remove following: test of results from small test
+# test_seq = '>Chr1CCCTAAACCCTAAACCCTAAACCCTAAACCTCTGAATCCTTAATCCCTAAATCCCTAAATCTTTAAATCCTACATCCATGAATCCCTAAATACCTAATTCCCTAAACCCGAAACCGGTTTCTCTGGTTGAAAATCATTGTGTATATAATGATAATTTT>Chr2ATCGTTTTTATGTAATTGCTTATTGTTGTGTGTAGATTTTTTAAAAATATCATTTGAGGTCAATACAAATCCTATTTCTTGTGGTTTTCTTTCCTTCACTTAGCTATGGATGGTTTATCTTCATTTGTTATATTGGATACAAGCTTTGCTACGATCTA<Chr3CATTTGGGAATGTGAGTCTCTTATTGTAACCTTAGGGTTGGTTTATCTCAAGAATCTTATTAATTGTTTGGACTGTTTATGTTTGGACATTTATTGTCATTCTTACTCCTTTGTGGAAATGTTTGTTCTATCAATTTATCTTTTGTGGGAAAATTATT>Chr4TAGTTGTAGGGATGAAGTCTTTCTTCGTTGTTGTTACGCTTGTCATCTCATCTCTCAATGATATGGGATGGTCCTTTAGCATTTATTCTGAAGTTCTTCTGCTTGATGATTTTATCCTTAGCCAAAAGGATTGGTGGTTTGAAGACACATCATATCAA>Chr5TTTCATAAATTTATAAGTAATACATTCTTATAAAATGGTCAGAGAAACACCAAAGATCCCGAGATTTCTTCTCACTTACTTTTTTTCTATCTATCTAGATTATATAAATGAGATGTTGAATTAGAGGAACCTTTGATTCAATGATCATAGAAAAATTA'
+# test_seq2 = '>Chr1ATGTCGTTCCTTTTTCATCATCTTAGCTATATCTACAGCTATATATCCTATCTTTAAACCTATATTATTTTTTCCTCTCTTCACCAAAGCCATGTTTTTTAGTTGTGGCGAAAAATAAGAAATCCATACATCAACATATCGCTTTCGTTACCTTAAAT>Chr2TTTGGCTTGTTATGAAGGCATGTCATAACGTTTCTAGTCACAACTCACAAGCATACCAACGACCATGATAAATCCAAAAAGTAGAAACAATCTATTATCTAAACCCCCAAAAGACAAAAGAAAAAAGTAGAAAGAAAAGGTAGGCAGAGATATAATGC>Chr3TGGTTTTATTTGTTTGTTAAAAGATATTGCTATTTCTGCCAATATTAAAACTTCACTTAGGAAGACTTGAACCTACCACACGTTAGTGACTAATGAGAGCCACTAGATAATTGCATGCATCCCACACTAGTACTAATTTTCTAGGGATATTAGAGTTT>Chr4TCTAATCACCTACTTCCTACTATGTGTATGTTATCTACTGGCGTGGATGCTTTTAAAGATGTTACGTTATTATTTTGTTCGGTTTGGAAAACGGCTCAATCGTTATGAGTTCGTAAGACACATACATTGTTCCATGATAAAATGCAACCCCACGAACC>Chr5ATTTGCGACAAGCAAAACAACATGGTCAAAATTAAAAGCTAACAATTAGCCAGCGATTCAAAAAGTCAACCTTCTAGATGGATTTAACAACATATCGATAGGATTCAAGATTAAAAATAAGCACACTCTTATTAATGTTAAAAAACGAATGAGATGAA'
+
+
+test_seq = '>Chr1CCCTAAACCCTAAACCCTAAACCC' \
+           '>Chr2CCCTAAACCCTAAACCCTAAACCC' \
+           '>Chr3CCCTAAACCCTAAACCCTAAACCC' \
+           '>Chr4CCCTAAACCCTAAACCCTAAACCC' \
+           '>Chr5CCCTAAACCCTAAACCCTAAACCC'
+test_seq2 = '>Chr1ATGTCGTTCCTTTTTCATCATCTT' \
+            '>Chr2ATGTCGTTCCTTTTTCATCATCTT' \
+            '>Chr3ATGTCGTTCCTTTTTCATCATCTT' \
+            '>Chr4ATGTCGTTCCTTTTTCATCATCTT' \
+            '>Chr5ATGTCGTTCCTTTTTCATCATCTT'
+
+dict_one = count_k_mer(dict_one, test_seq)
+f = open("dictOne.txt", "w")
+f.write(str(dict_one))
+f.close()
+dict_two = count_k_mer(dict_two, test_seq2)
+f = open("dictTwo.txt", "w")
+f.write(str(dict_two))
+f.close()
+print("saved dict output's")
+
+# TODO: results saved as: key_in_one, key_in_both, count
+# k_mer_finding = pd.DataFrame({
+#    "in one": [],
+#    "in both": [],
+#    "count": []
+# })
+
+in_one = 0
+in_both = 0
+total_count = 0
+
+for key in zip(dict_one, dict_two):
+    if dict_one[key] > 0 and dict_two[key] > 0:
+        in_both += dict_one[key] + dict_two[key]
+        total_count += dict_one[key] + dict_two[key]
+    elif dict_one[key] > 0 or dict_two[key] > 0:
+        print('no')
+        in_one += dict_one[key] + dict_two[key]
+        total_count += dict_one[key] + dict_two[key]
+
+# TODO for chi-square:
+# occurrence against non occurrence in first and second
+
+# TODO compare result and calculate conclusion
+
+kMer_val = in_one / in_both
+print(in_one)
+print(in_both)
+print(kMer_val)
+print('as log:')
+# print(np.math.log(kMer_val))
