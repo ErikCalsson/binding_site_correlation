@@ -4,6 +4,7 @@ import numpy as np
 import scipy.stats as stats
 import pybedtools as pt
 from itertools import product
+import csv
 
 # imports intern
 import src.file_reader as file
@@ -173,9 +174,10 @@ def dic_mer_gen(k_min, k_max):
 
 
 # dict_one = dic_mer_gen(kMin, kMax)
-dict_one = dic_mer_gen(kMin, kMin + 3)
+template_dict = dic_mer_gen(kMin, kMin + 3)
+#dict_one = template_dict# dic_mer_gen(kMin, kMin + 3)
 # dict_two = dic_mer_gen(kMin, kMax)
-dict_two = dict_one
+#dict_two = template_dict#dict_one
 
 
 # dict_inter = dict_one
@@ -193,11 +195,18 @@ def walk_seq(seq, sub_seq):
 
 
 # iterating over sequences and counting k-mer appearances
-def count_k_mer(dict_k_mer, seq):
-    for key_mer in dict_k_mer:  # iteration over dict key
-        for chunk in walk_seq(seq, key_mer):
-            if key_mer == chunk:
-                dict_k_mer[key_mer] += 1
+#def count_k_mer(dict_k_mer, seq):
+def count_k_mer(dict_k_mer, seq, k_min, k_max):
+    #for key_mer in dict_k_mer:  # iteration over dict key
+    #    for chunk in walk_seq(seq, key_mer):
+    #        if chunk == chunk:
+    #            dict_k_mer[key_mer] += 1
+    #return dict_k_mer
+    for mer_len in range(k_min + 1, k_max + 1):
+        for i in range(len(seq) - (mer_len - 1)):
+            k = i+mer_len
+            if seq[i:k] in dict_k_mer:
+                dict_k_mer[seq[i:k]] += 1
     return dict_k_mer
 
 
@@ -205,30 +214,36 @@ def count_k_mer(dict_k_mer, seq):
 # count_k_mer(dict_one, seq_two)
 
 # TODO remove following: test of results from small test
-# test_seq = '>Chr1CCCTAAACCCTAAACCCTAAACCCTAAACCTCTGAATCCTTAATCCCTAAATCCCTAAATCTTTAAATCCTACATCCATGAATCCCTAAATACCTAATTCCCTAAACCCGAAACCGGTTTCTCTGGTTGAAAATCATTGTGTATATAATGATAATTTT>Chr2ATCGTTTTTATGTAATTGCTTATTGTTGTGTGTAGATTTTTTAAAAATATCATTTGAGGTCAATACAAATCCTATTTCTTGTGGTTTTCTTTCCTTCACTTAGCTATGGATGGTTTATCTTCATTTGTTATATTGGATACAAGCTTTGCTACGATCTA<Chr3CATTTGGGAATGTGAGTCTCTTATTGTAACCTTAGGGTTGGTTTATCTCAAGAATCTTATTAATTGTTTGGACTGTTTATGTTTGGACATTTATTGTCATTCTTACTCCTTTGTGGAAATGTTTGTTCTATCAATTTATCTTTTGTGGGAAAATTATT>Chr4TAGTTGTAGGGATGAAGTCTTTCTTCGTTGTTGTTACGCTTGTCATCTCATCTCTCAATGATATGGGATGGTCCTTTAGCATTTATTCTGAAGTTCTTCTGCTTGATGATTTTATCCTTAGCCAAAAGGATTGGTGGTTTGAAGACACATCATATCAA>Chr5TTTCATAAATTTATAAGTAATACATTCTTATAAAATGGTCAGAGAAACACCAAAGATCCCGAGATTTCTTCTCACTTACTTTTTTTCTATCTATCTAGATTATATAAATGAGATGTTGAATTAGAGGAACCTTTGATTCAATGATCATAGAAAAATTA'
-# test_seq2 = '>Chr1ATGTCGTTCCTTTTTCATCATCTTAGCTATATCTACAGCTATATATCCTATCTTTAAACCTATATTATTTTTTCCTCTCTTCACCAAAGCCATGTTTTTTAGTTGTGGCGAAAAATAAGAAATCCATACATCAACATATCGCTTTCGTTACCTTAAAT>Chr2TTTGGCTTGTTATGAAGGCATGTCATAACGTTTCTAGTCACAACTCACAAGCATACCAACGACCATGATAAATCCAAAAAGTAGAAACAATCTATTATCTAAACCCCCAAAAGACAAAAGAAAAAAGTAGAAAGAAAAGGTAGGCAGAGATATAATGC>Chr3TGGTTTTATTTGTTTGTTAAAAGATATTGCTATTTCTGCCAATATTAAAACTTCACTTAGGAAGACTTGAACCTACCACACGTTAGTGACTAATGAGAGCCACTAGATAATTGCATGCATCCCACACTAGTACTAATTTTCTAGGGATATTAGAGTTT>Chr4TCTAATCACCTACTTCCTACTATGTGTATGTTATCTACTGGCGTGGATGCTTTTAAAGATGTTACGTTATTATTTTGTTCGGTTTGGAAAACGGCTCAATCGTTATGAGTTCGTAAGACACATACATTGTTCCATGATAAAATGCAACCCCACGAACC>Chr5ATTTGCGACAAGCAAAACAACATGGTCAAAATTAAAAGCTAACAATTAGCCAGCGATTCAAAAAGTCAACCTTCTAGATGGATTTAACAACATATCGATAGGATTCAAGATTAAAAATAAGCACACTCTTATTAATGTTAAAAAACGAATGAGATGAA'
-
-
 test_seq = '>Chr1CCCTAAACCCTAAACCCTAAACCC' \
            '>Chr2CCCTAAACCCTAAACCCTAAACCC' \
            '>Chr3CCCTAAACCCTAAACCCTAAACCC' \
            '>Chr4CCCTAAACCCTAAACCCTAAACCC' \
            '>Chr5CCCTAAACCCTAAACCCTAAACCC'
+
 test_seq2 = '>Chr1ATGTCGTTCCTTTTTCATCATCTT' \
             '>Chr2ATGTCGTTCCTTTTTCATCATCTT' \
             '>Chr3ATGTCGTTCCTTTTTCATCATCTT' \
             '>Chr4ATGTCGTTCCTTTTTCATCATCTT' \
             '>Chr5ATGTCGTTCCTTTTTCATCATCTT'
 
-dict_one = count_k_mer(dict_one, test_seq)
-f = open("dictOne.txt", "w")
-f.write(str(dict_one))
-f.close()
-dict_two = count_k_mer(dict_two, test_seq2)
-f = open("dictTwo.txt", "w")
-f.write(str(dict_two))
-f.close()
-print("saved dict output's")
+
+#dict_one = count_k_mer(dict_one, test_seq)
+dict_one = count_k_mer(template_dict, test_seq, kMin, kMin+3)
+#f = open("dictOne.txt", "w")
+#f.write(str(dict_one))
+#f.close()
+w = csv.writer(open("dictOne.csv", "w"))
+for key, val in dict_one.items():
+    w.writerow([key, val])
+
+#dict_two = count_k_mer(dict_two, test_seq2)
+dict_two = count_k_mer(template_dict, test_seq2, kMin, kMin+3)
+#f = open("dictTwo.txt", "w")
+#f.write(str(dict_two))
+#f.close()
+w = csv.writer(open("dictTwo.csv", "w"))
+for key, val in dict_two.items():
+    w.writerow([key, val])
 
 # TODO: results saved as: key_in_one, key_in_both, count
 # k_mer_finding = pd.DataFrame({
@@ -241,23 +256,36 @@ in_one = 0
 in_both = 0
 total_count = 0
 
-for key in zip(dict_one, dict_two):
-    if dict_one[key] > 0 and dict_two[key] > 0:
-        in_both += dict_one[key] + dict_two[key]
-        total_count += dict_one[key] + dict_two[key]
-    elif dict_one[key] > 0 or dict_two[key] > 0:
-        print('no')
-        in_one += dict_one[key] + dict_two[key]
-        total_count += dict_one[key] + dict_two[key]
+#for key in dict_one:
+#    if (dict_one[key] > 0) and (dict_two[key] > 0):
+#        in_both += dict_one[key] + dict_two[key]
+#        # total_count += dict_one[key] + dict_two[key]
+#    elif (dict_one[key] > 0) or (dict_two[key] > 0):
+#        in_one += dict_one[key] + dict_two[key]
+#        # total_count += dict_one[key] + dict_two[key]
+#    total_count += dict_one[key] + dict_two[key]
+
+for key_out in dict_one:
+    if dict_one[key_out] != 0:
+        if dict_two[key_out] != 0:
+            in_both += dict_one[key_out] + dict_two[key_out]
+        else:
+            in_one += dict_one[key_out]
+    if dict_two[key_out] != 0:
+        if dict_one == 0:
+            in_one += dict_two[key_out]
 
 # TODO for chi-square:
 # occurrence against non occurrence in first and second
 
 # TODO compare result and calculate conclusion
 
-kMer_val = in_one / in_both
+
 print(in_one)
 print(in_both)
-print(kMer_val)
+#kMer_val = in_one / in_both
+#print(kMer_val)
 print('as log:')
 # print(np.math.log(kMer_val))
+
+
