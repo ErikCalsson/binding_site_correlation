@@ -1,5 +1,4 @@
 # imports extern
-import pandas as pd
 import numpy as np
 import scipy.stats as stats
 import pybedtools as pt
@@ -173,11 +172,11 @@ def dic_mer_gen(k_min, k_max):
     return tmp_dict
 
 
-# dict_one = dic_mer_gen(kMin, kMax)
-template_dict = dic_mer_gen(kMin, kMin + 3)
-#dict_one = template_dict# dic_mer_gen(kMin, kMin + 3)
-# dict_two = dic_mer_gen(kMin, kMax)
-#dict_two = template_dict#dict_one
+dict_one = dic_mer_gen(kMin, kMin + 3)
+# template_dict = dic_mer_gen(kMin, kMin + 3)
+# dict_one = template_dict  # dic_mer_gen(kMin, kMin + 3)
+dict_two = dic_mer_gen(kMin, kMin + 3)
+# dict_two = template_dict  #dict_one
 
 
 # dict_inter = dict_one
@@ -186,32 +185,16 @@ template_dict = dic_mer_gen(kMin, kMin + 3)
 # https://bioinformatics.stackexchange.com/questions/561/how-to-use-python-to-count-k-mers
 # https://stackoverflow.com/questions/49188432/counting-maximum-k-mer-repetition-frequency
 
-# walking over sequence in k-mer length steps
-def walk_seq(seq, sub_seq):
-    sub_len = len(sub_seq)
-    # assert len(seq) >= sub_len
-    for i in range(0, len(seq) - sub_len + 1):
-        yield seq[i:i + sub_len]
-
 
 # iterating over sequences and counting k-mer appearances
-#def count_k_mer(dict_k_mer, seq):
 def count_k_mer(dict_k_mer, seq, k_min, k_max):
-    #for key_mer in dict_k_mer:  # iteration over dict key
-    #    for chunk in walk_seq(seq, key_mer):
-    #        if chunk == chunk:
-    #            dict_k_mer[key_mer] += 1
-    #return dict_k_mer
-    for mer_len in range(k_min + 1, k_max + 1):
-        for i in range(len(seq) - (mer_len - 1)):
+    for mer_len in range(k_min, k_max + 1):
+        for i in range(0, len(seq) - (mer_len - 1)):
             k = i+mer_len
             if seq[i:k] in dict_k_mer:
                 dict_k_mer[seq[i:k]] += 1
     return dict_k_mer
 
-
-# count_k_mer(dict_one, seq_one)
-# count_k_mer(dict_one, seq_two)
 
 # TODO remove following: test of results from small test
 test_seq = '>Chr1CCCTAAACCCTAAACCCTAAACCC' \
@@ -220,15 +203,15 @@ test_seq = '>Chr1CCCTAAACCCTAAACCCTAAACCC' \
            '>Chr4CCCTAAACCCTAAACCCTAAACCC' \
            '>Chr5CCCTAAACCCTAAACCCTAAACCC'
 
-test_seq2 = '>Chr1ATGTCGTTCCTTTTTCATCATCTT' \
-            '>Chr2ATGTCGTTCCTTTTTCATCATCTT' \
+test_seq2 = '>Chr1ATGTCGTTCCTTTTTCATAAACCC' \
+            '>Chr2ATGTCGTTCCTTTTTCAGAAACCC' \
             '>Chr3ATGTCGTTCCTTTTTCATCATCTT' \
             '>Chr4ATGTCGTTCCTTTTTCATCATCTT' \
             '>Chr5ATGTCGTTCCTTTTTCATCATCTT'
 
 
-#dict_one = count_k_mer(dict_one, test_seq)
-dict_one = count_k_mer(template_dict, test_seq, kMin, kMin+3)
+#dict_one = count_k_mer(dict_one, seq_one, kMin, kMax)
+dict_one = count_k_mer(dict_one, test_seq, kMin, kMin+3)
 #f = open("dictOne.txt", "w")
 #f.write(str(dict_one))
 #f.close()
@@ -236,8 +219,9 @@ w = csv.writer(open("dictOne.csv", "w"))
 for key, val in dict_one.items():
     w.writerow([key, val])
 
-#dict_two = count_k_mer(dict_two, test_seq2)
-dict_two = count_k_mer(template_dict, test_seq2, kMin, kMin+3)
+
+#dict_two = count_k_mer(dict_one, seq_two, kMin, kMax)
+dict_two = count_k_mer(dict_two, test_seq2, kMin, kMin+3)
 #f = open("dictTwo.txt", "w")
 #f.write(str(dict_two))
 #f.close()
@@ -256,36 +240,66 @@ in_one = 0
 in_both = 0
 total_count = 0
 
-#for key in dict_one:
-#    if (dict_one[key] > 0) and (dict_two[key] > 0):
-#        in_both += dict_one[key] + dict_two[key]
-#        # total_count += dict_one[key] + dict_two[key]
-#    elif (dict_one[key] > 0) or (dict_two[key] > 0):
-#        in_one += dict_one[key] + dict_two[key]
-#        # total_count += dict_one[key] + dict_two[key]
-#    total_count += dict_one[key] + dict_two[key]
 
-for key_out in dict_one:
-    if dict_one[key_out] != 0:
-        if dict_two[key_out] != 0:
-            in_both += dict_one[key_out] + dict_two[key_out]
-        else:
-            in_one += dict_one[key_out]
-    if dict_two[key_out] != 0:
-        if dict_one == 0:
-            in_one += dict_two[key_out]
+# scan both dictionary's and get counts of k_mer's  appearing in both or in one with > 0
+for key in dict_one:
+    if (dict_one[key] > 0) and (dict_two[key] > 0):
+        in_both += dict_one[key] + dict_two[key]
+    elif (dict_one[key] > 0) or (dict_two[key] > 0):
+        in_one += dict_one[key] + dict_two[key]
+    total_count += dict_one[key] + dict_two[key]
+
+
+#for k in dict_one:
+#    if dict_one[k] != 0 and dict_two[k] == 0:
+#        in_one += dict_one[k]
+#        total_count += dict_one[k]
+#    elif dict_one[k] != 0 and dict_two[k] != 0:
+#        in_both += dict_one[k] + dict_two[k]
+#        total_count += dict_one[k] + dict_two[k]
+#    elif dict_one[k] == 0 and dict_two[k] != 0:
+#        in_one += dict_two[k]
+#        total_count += dict_two[k]
+
+#for k in dict_two:
+#    if dict_two[k] != 0:
+#        if dict_one[k] != 0:
+#            in_both += dict_one[k] + dict_two[k]
+#            total_count += dict_one[k] + dict_two[k]
+#        else:
+#            in_one += dict_two[k]
+#            total_count += dict_two[k]
+#    else:
+#        if dict_one[k] != 0:
+#            in_one += dict_one[k]
+#            total_count += dict_one[k]
+
+
+# total count smaller than in other(output is:toal=274, one=225, both=49 instead of  toal=540, one=491, both=49)
+#for key_out in dict_one:
+#    if dict_one[key_out] != 0:
+#        if dict_two[key_out] != 0:
+#            in_both += dict_one[key_out] + dict_two[key_out]
+#            total_count += dict_one[key_out] + dict_two[key_out]
+#        else:
+#            in_one += dict_one[key_out]
+#            total_count += dict_one[key_out]
+#    if dict_two[key_out] != 0:
+#        if dict_one == 0:
+#            in_one += dict_two[key_out]
+#            total_count += dict_two[key_out]
+
 
 # TODO for chi-square:
 # occurrence against non occurrence in first and second
 
 # TODO compare result and calculate conclusion
-
-
+print("total, one, both")
+print(total_count)
 print(in_one)
 print(in_both)
-#kMer_val = in_one / in_both
-#print(kMer_val)
-print('as log:')
-# print(np.math.log(kMer_val))
-
+if in_both != 0:
+    kMer_val = in_both / total_count
+    print(kMer_val, "% same")
+    print(in_one / total_count, "% different")
 
