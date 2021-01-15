@@ -147,20 +147,27 @@ seq_one = merge_one.getfasta(fi=file.ref_fasta, s=True)  # bedOUT=True
 seq_two = merge_two.getfasta(fi=file.ref_fasta, s=True)
 seq_inter = merge_inter.getfasta(fi=file.ref_fasta, s=True)
 
-kMax = 2
-if len_one < len_two and len_one < len_inter:
-    kMax = len_one
-elif len_two < len_one and len_two < len_inter:
-    kMax = len_two
+kMax = kMin + 1  # 2
+if pars.args.kmax is not None:
+    kMax = int(pars.args.kmax)
 else:
-    kMax = len_inter
+    if len_one < len_two and len_one:  # < len_inter:
+        kMax = len_one
+    else:  # elif len_two < len_one and len_two < len_inter:
+        kMax = len_two
+# else:
+#     kMax = len_inter
 
-
-# TODO k-mer analysis
+# check whether kMin < kMax
+if kMax < kMin:
+    print("max kMer length < min kMer length")
+    exit()
+elif kMax == kMin:
+    print("max kMer length = min kMer length")
+    exit()
 
 
 # generating dict's from kMin to kMax length for all possible k-mer's
-# dict generator
 def dic_mer_gen(k_min, k_max):
     # TODO ACGT not the only letters in fasta files!
     seq = ['A', 'C', 'G', 'T']
@@ -172,14 +179,14 @@ def dic_mer_gen(k_min, k_max):
     return tmp_dict
 
 
-dict_one = dic_mer_gen(kMin, kMin + 3)
 # template_dict = dic_mer_gen(kMin, kMin + 3)
 # dict_one = template_dict  # dic_mer_gen(kMin, kMin + 3)
-dict_two = dic_mer_gen(kMin, kMin + 3)
 # dict_two = template_dict  #dict_one
 
-
-# dict_inter = dict_one
+dict_one = dic_mer_gen(kMin, kMax)
+dict_two = dic_mer_gen(kMin, kMax)
+# dict_one = dic_mer_gen(kMin, kMin + 3)
+# dict_two = dic_mer_gen(kMin, kMin + 3)
 
 
 # https://bioinformatics.stackexchange.com/questions/561/how-to-use-python-to-count-k-mers
@@ -210,8 +217,8 @@ test_seq2 = '>Chr1ATGTCGTTCCTTTTTCATAAACCC' \
             '>Chr5ATGTCGTTCCTTTTTCATCATCTT'
 
 
-#dict_one = count_k_mer(dict_one, seq_one, kMin, kMax)
-dict_one = count_k_mer(dict_one, test_seq, kMin, kMin+3)
+dict_one = count_k_mer(dict_one, seq_one, kMin, kMax)
+#dict_one = count_k_mer(dict_one, test_seq, kMin, kMin+3)
 #f = open("dictOne.txt", "w")
 #f.write(str(dict_one))
 #f.close()
@@ -220,8 +227,8 @@ for key, val in dict_one.items():
     w.writerow([key, val])
 
 
-#dict_two = count_k_mer(dict_one, seq_two, kMin, kMax)
-dict_two = count_k_mer(dict_two, test_seq2, kMin, kMin+3)
+dict_two = count_k_mer(dict_one, seq_two, kMin, kMax)
+#dict_two = count_k_mer(dict_two, test_seq2, kMin, kMin+3)
 #f = open("dictTwo.txt", "w")
 #f.write(str(dict_two))
 #f.close()
